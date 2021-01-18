@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".video.VideoChatActivity">
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+        <!-- 为的是让视频界面上层的按钮不受影响 -->
+        <org.webrtc.SurfaceViewRenderer
+            android:id="@+id/id_svr_remote"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+
+        <org.webrtc.SurfaceViewRenderer
+            android:id="@+id/id_svr_local"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+    </FrameLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="100dp"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/id_tv_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:text="yonghu"
+            android:textColor="#FFFFFFFF"
+            android:textSize="20dp" />
+
+        <TextView
+            android:id="@+id/id_tv_time"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="20dp"
+            android:text="倒计时 100 秒"
+            android:textColor="#FFFFFFFF"
+            android:textSize="16dp" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="90dp"
+        android:orientation="horizontal">
+
+
+        <Button
+            android:id="@+id/id_btn_sw_video"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            android:background="#4CAF50"
+            android:text="前置" />
+
+
+        <Button
+            android:id="@+id/id_btn_sw_audio"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            android:background="#4CAF50"
+            android:text="听筒" />
+
+        <Button
+            android:id="@+id/id_btn_sw_mk"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            android:background="#4CAF50"
+            android:text="麦克" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="30dp"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/id_btn_sw_v2a"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            tools:text="语音" />
+
+        <Button
+            android:id="@+id/id_btn_agree"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            android:text="接听" />
+
+        <Button
+            android:id="@+id/id_btn_reject"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            android:text="拒绝" />
+
+
+        <Button
+            android:id="@+id/id_btn_cancel_end"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            android:text="挂断" />
+    </LinearLayout>
+
+</RelativeLayout>
