@@ -12,7 +12,7 @@
         android:theme="@style/Theme.LG_VideoChat">
         <activity android:name=".SettingUsernameActivity"></activity>
         <activity android:name=".UserListActivity"></activity>
-        <activity android:name=".ChatActivity"></activity>
+        <activity android:name=".aty.ChatActivity"></activity>
         <activity android:name=".MainActivity"></activity>
         <activity android:name=".SplashActivity">
             <intent-filter>

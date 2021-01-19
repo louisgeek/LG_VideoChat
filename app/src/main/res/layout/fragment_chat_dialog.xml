@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="horizontal"
-    tools:context=".ChatDialogFragment">
+    tools:context=".dialog.ChatDialogFragment">
 
     <FrameLayout
         android:id="@+id/id_frame_layout_container"

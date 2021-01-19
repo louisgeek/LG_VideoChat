@@ -6,14 +6,14 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
 
-import com.louisgeek.chat.video.model.base.UserModel;
+import com.louisgeek.chat.model.base.UserModel;
 
 import java.util.ArrayList;
 import java.util.List;
 
 
 public class MyUserListAdapter extends BaseAdapter {
-    private List<UserModel> mDataList = new ArrayList<>();
+    private final List<UserModel> mDataList = new ArrayList<>();
 
     @Override
     public int getCount() {

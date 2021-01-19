@@ -2,6 +2,8 @@ package com.louisgeek.chat.socketio;
 
 import android.util.Log;
 
+import com.louisgeek.chat.socketio.listener.EventEmitterListener;
+
 import org.greenrobot.eventbus.EventBus;
 
 import java.net.URISyntaxException;
@@ -58,7 +60,7 @@ public class SocketIOManager {
             return;
         }
         //统一处理
-        for (Map.Entry<String, EventEmitterListener> mapEntry : SocketEvents.eventMap.entrySet()) {
+        for (Map.Entry<String, EventEmitterListener> mapEntry : ChatEvents.eventMap.entrySet()) {
             String event = mapEntry.getKey();
             EventEmitterListener listener = mapEntry.getValue();
             mSocket.on(event, listener);
@@ -74,7 +76,7 @@ public class SocketIOManager {
                 Log.e(TAG, "call: ========== end ============== ");
                 mSocketConnected = true;
                 //
-                EventBus.getDefault().post(SocketEvent.create(Socket.EVENT_CONNECT, null));
+                EventBus.getDefault().post(SocketIOEvent.create(Socket.EVENT_CONNECT, null));
             }
         });
         mSocket.on(Socket.EVENT_CONNECT_ERROR, new Emitter.Listener() {
@@ -88,7 +90,7 @@ public class SocketIOManager {
                 //
                 mSocketConnected = false;
                 //
-                EventBus.getDefault().post(SocketEvent.create(Socket.EVENT_CONNECT_ERROR, null));
+                EventBus.getDefault().post(SocketIOEvent.create(Socket.EVENT_CONNECT_ERROR, null));
             }
         });
         mSocket.on(Socket.EVENT_CONNECT_TIMEOUT, new Emitter.Listener() {
@@ -101,7 +103,7 @@ public class SocketIOManager {
                 Log.e(TAG, "call: ========== end ============== ");
                 mSocketConnected = false;
                 //
-                EventBus.getDefault().post(SocketEvent.create(Socket.EVENT_CONNECT_TIMEOUT, null));
+                EventBus.getDefault().post(SocketIOEvent.create(Socket.EVENT_CONNECT_TIMEOUT, null));
             }
 
         });
@@ -126,7 +128,7 @@ public class SocketIOManager {
                 Log.e(TAG, "call: ========== end ============== ");
                 mSocketConnected = false;
                 //
-                EventBus.getDefault().post(SocketEvent.create(Socket.EVENT_DISCONNECT, null));
+                EventBus.getDefault().post(SocketIOEvent.create(Socket.EVENT_DISCONNECT, null));
             }
 
         });
@@ -141,7 +143,7 @@ public class SocketIOManager {
                 Log.e(TAG, "call: ========== end ============== ");
                 mSocketConnected = false;
                 //
-                EventBus.getDefault().post(SocketEvent.create(Socket.EVENT_ERROR, null));
+                EventBus.getDefault().post(SocketIOEvent.create(Socket.EVENT_ERROR, null));
             }
 
         });
@@ -202,7 +204,7 @@ public class SocketIOManager {
                 }
                 Log.e(TAG, "call: ========== end ============== ");
                 mSocketConnected = false;
-                EventBus.getDefault().post(SocketEvent.create(Socket.EVENT_RECONNECT_FAILED, null));
+                EventBus.getDefault().post(SocketIOEvent.create(Socket.EVENT_RECONNECT_FAILED, null));
             }
 
         });

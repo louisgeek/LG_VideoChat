@@ -8,6 +8,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import java.util.Locale;
 
+@Deprecated
 public class SplashActivity extends AppCompatActivity {
     CountDownTimer mCountDownTimer;
     Button id_btn;

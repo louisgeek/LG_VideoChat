@@ -14,20 +14,13 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.util.ObjectsCompat;
 
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
-import com.louisgeek.chat.MessageSocketAdapter;
-import com.louisgeek.chat.socketio.SocketEvent;
-import com.louisgeek.chat.socketio.SocketEvents;
+import com.louisgeek.chat.helper.UserChatHelper;
+import com.louisgeek.chat.listener.OnChatListener;
+import com.louisgeek.chat.model.base.UserModel;
+import com.louisgeek.chat.socketio.SocketIOEvent;
 import com.louisgeek.chat.socketio.SocketIOService;
-import com.louisgeek.chat.video.CallVideoHelper;
-import com.louisgeek.chat.video.OnVideoChatListener;
-import com.louisgeek.chat.video.VideoChatFragment;
-import com.louisgeek.chat.video.model.ChatInfoTypeModel;
-import com.louisgeek.chat.video.model.base.ChatInfoModel;
-import com.louisgeek.chat.video.model.base.UserModel;
-import com.louisgeek.chat.video.model.info.VideoChatConfigModel;
 import com.louisgeek.lg_videochat.adapter.MyUserListAdapter;
+import com.louisgeek.lg_videochat.dialog.ChatDialogFragment;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -36,6 +29,7 @@ import org.greenrobot.eventbus.ThreadMode;
 import java.util.Locale;
 
 /**
+ * 该页面 常驻
  * //1
  * UserListActivity -> ChatDialogFragment => VideoChatFragment
  * //2
@@ -46,12 +40,7 @@ public class UserListActivity extends AppCompatActivity {
 
     private Context mContext;
     private MyUserListAdapter mMyUserListAdapter;
-    private VideoChatFragment mVideoChatFragment;
-    private String userId;
-    private String userName;
-
-
-    private final OnVideoChatListener onVideoChatListener = new OnVideoChatListener() {
+    private final OnChatListener onChatListener = new OnChatListener() {
 
 
         @Override
@@ -127,6 +116,9 @@ public class UserListActivity extends AppCompatActivity {
 
 
     };
+    private String userName;
+    //    private VideoChatFragment mVideoChatFragment;
+    private String userId;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -165,30 +157,19 @@ public class UserListActivity extends AppCompatActivity {
                 UserModel userModel = new UserModel();
                 userModel.userId = userId;
                 userModel.userName = userName;
-                //
+             /*   //
                 CallVideoHelper.userModel = userModel;
-                CallVideoHelper.otherUserModel = otherUserModel;
+                CallVideoHelper.otherUserModel = otherUserModel;*/
                 //
-                MessageSocketAdapter.online(otherUserModel, new MessageSocketAdapter.OnlineBack() {
+                UserChatHelper.doInvite(mContext, userModel, otherUserModel, new UserChatHelper.OnInviteBack() {
                     @Override
-                    public void online(boolean isOnline) {
-                        if (!isOnline) {
-                            Toast.makeText(mContext, otherUserModel.userName + "不在线", Toast.LENGTH_SHORT).show();
-
-                            return;
-                        }
-                        //
-                        VideoChatConfigModel videoChatConfigModel = new VideoChatConfigModel();
-                        videoChatConfigModel.isVideoInitConfig = true;
-                        //邀请
-                        String chatInfoModelJson = MessageSocketAdapter.sendInvite(videoChatConfigModel);
+                    public void onInvite(String chatInfoModelJson) {
                         //type 1
-//                        showChatDialog(chatInfoModelJson);
+                        showChatDialog(chatInfoModelJson);
                         //type 2
-                        ChatActivity.actionStart(mContext, chatInfoModelJson);
+//                        ChatActivity.actionStart(mContext, chatInfoModelJson);
                     }
                 });
-
             }
 
 
@@ -261,39 +242,20 @@ public class UserListActivity extends AppCompatActivity {
 
 
     @Subscribe(threadMode = ThreadMode.MAIN)
-    public void onSubscribe(SocketEvent socketEvent) {
-        String json = socketEvent.json;
-        String event = socketEvent.event;
+    public void onSubscribe(SocketIOEvent socketIOEvent) {
+        String json = socketIOEvent.json;
+        String event = socketIOEvent.event;
         Log.e(TAG, "onSubscribe: event " + event);
-        if (SocketEvents.userChat.equals(event)) {
-            ChatInfoModel chatInfoModelTemp = new Gson().fromJson(json, ChatInfoModel.class);
-            String chatInfoType = chatInfoModelTemp.chatInfoType;
-            if (ChatInfoTypeModel.ChatInfo_Invite.equals(chatInfoType)) {
-                //
-                String chatInfoModelJson = json;
-                //
-                ChatInfoModel<VideoChatConfigModel> videoChatConfigModelChatInfoModel = new Gson().fromJson(chatInfoModelJson, new TypeToken<ChatInfoModel<VideoChatConfigModel>>() {
-                }.getType());
-                //
-                CallVideoHelper.userModel = videoChatConfigModelChatInfoModel.toUserModel;
-                CallVideoHelper.otherUserModel = videoChatConfigModelChatInfoModel.fromUserModel;
-                //
-             /*   mVideoChatFragment = VideoChatFragment.newInstance(chatInfoModelJson, "");
-                mVideoChatFragment.addOnVideoChatListener(onVideoChatListener);
-                getSupportFragmentManager().beginTransaction()
-                        .replace(R.id.id_frame_layout_container, mVideoChatFragment)
-                        .addToBackStack("mVideoChatFragment")
-                        .commitAllowingStateLoss();*/
-                //
+        UserChatHelper.onInvite(socketIOEvent, new UserChatHelper.OnInviteBack() {
+            @Override
+            public void onInvite(String chatInfoModelJson) {
                 //type 1
-//                showChatDialog(chatInfoModelJson);
+                showChatDialog(chatInfoModelJson);
                 //type 2
-                        ChatActivity.actionStart(mContext, chatInfoModelJson);
-
-            } else {
-                //其他消息 里面的页面处理
+//                ChatActivity.actionStart(mContext, chatInfoModelJson);
             }
-        }
+        });
+
     }
 
     private void showChatDialog(String chatInfoModelJson) {

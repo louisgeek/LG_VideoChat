@@ -111,9 +111,10 @@ public class SocketIOService extends Service {
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
-    public void onSubscribe(BaseEvent event) {
-
+    public void onSubscribe(SocketIOEvent event) {
+        //no-op
     }
+
     @Override
     public void onDestroy() {
         EventBus.getDefault().unregister(this);
