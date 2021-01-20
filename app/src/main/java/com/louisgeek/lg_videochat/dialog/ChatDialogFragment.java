@@ -20,7 +20,7 @@ import com.louisgeek.lg_videochat.R;
  * create an instance of this fragment.
  */
 public class ChatDialogFragment extends DialogFragment {
-
+    private ChatFragment mChatFragment;
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
@@ -147,7 +147,7 @@ public class ChatDialogFragment extends DialogFragment {
             Toast.makeText(requireContext(), "被切换到视频 " + isVideo, Toast.LENGTH_SHORT).show();
         }
     };
-    private ChatFragment mChatFragment;
+
 
     private void initView(View rootLayout) {
         Button id_agree = rootLayout.findViewById(R.id.id_agree);

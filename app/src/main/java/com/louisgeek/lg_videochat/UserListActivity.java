@@ -29,11 +29,11 @@ import org.greenrobot.eventbus.ThreadMode;
 import java.util.Locale;
 
 /**
- * 该页面 常驻
+ * 该页面 常驻 负责收发消息
  * //1
  * UserListActivity -> ChatDialogFragment => VideoChatFragment
  * //2
- * UserListActivity -> ChatActivity => VideoChatFragment
+ * UserListActivity -> ChatActivity -> ChatFragment(可选) => VideoChatFragment
  */
 public class UserListActivity extends AppCompatActivity {
     private static final String TAG = "UserListActivity";
