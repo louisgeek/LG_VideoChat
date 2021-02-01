@@ -34,8 +34,8 @@ dependencies {
     implementation 'androidx.appcompat:appcompat:1.2.0'
     implementation 'com.google.android.material:material:1.2.1'
     implementation 'androidx.constraintlayout:constraintlayout:2.0.4'
-    implementation project(path: ':chat')
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
+    implementation project(path: ':chat')
     testImplementation 'junit:junit:4.13.1'
     androidTestImplementation 'androidx.test.ext:junit:1.1.2'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
@@ -47,5 +47,7 @@ dependencies {
     implementation 'com.google.code.gson:gson:2.8.6'
     implementation 'org.greenrobot:eventbus:3.2.0'
     implementation 'com.tencent:mmkv-static:1.2.7'
+
+//    implementation 'com.github.louisgeek:LG_VideoChat:1.0.0'
 
 }

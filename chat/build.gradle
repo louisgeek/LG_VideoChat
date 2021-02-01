@@ -2,7 +2,8 @@ plugins {
     id 'com.android.library'
     id 'maven-publish'
 }
-
+group = 'com.louisgeek2'
+version = '1.0.23'
 android {
     compileSdkVersion 30
     buildToolsVersion "30.0.3"
@@ -43,15 +44,6 @@ afterEvaluate {
                 groupId = 'com.louisgeek'
                 artifactId = 'chat'
                 version = '1.0.0'
-            }
-            // Creates a Maven publication called “debug”.
-            debug(MavenPublication) {
-                // Applies the component for the debug build variant.
-                from components.debug
-
-                groupId = 'com.example.MyLibrary'
-                artifactId = 'final-debug'
-                version = '1.0'
             }
         }
     }
