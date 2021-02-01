@@ -267,6 +267,11 @@ public class ChatFragment extends BaseChatFragment {
     }
 
     @Override
+    protected VideoChatConfigModel setupVideoChatConfigModel() {
+        return videoChatConfigModelChatInfoModel.chatInfo;
+    }
+
+    @Override
     protected SurfaceViewRenderer setupLocalSurfaceViewRenderer() {
         return id_svr_local;
     }

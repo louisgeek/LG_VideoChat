@@ -22,6 +22,7 @@ import com.louisgeek.chat.helper.base.BaseUserChatHelper;
 import com.louisgeek.chat.listener.PeerConnectionObserverListener;
 import com.louisgeek.chat.model.ChatInfoTypeModel;
 import com.louisgeek.chat.model.base.ChatInfoModel;
+import com.louisgeek.chat.model.info.VideoChatConfigModel;
 import com.louisgeek.chat.model.info.VideoChatInfoModel;
 import com.louisgeek.chat.model.info.VideoChatSdpInfoModel;
 import com.louisgeek.chat.socketio.ChatEvents;
@@ -65,7 +66,8 @@ import org.webrtc.audio.AudioDeviceModule;
  */
 public abstract class BaseChatFragment extends Fragment {
     private static final String TAG = "BaseVideoFragment";
-//    protected abstract ChatInfoModel<VideoChatConfigModel> setupChatInfoModel();
+
+    protected abstract VideoChatConfigModel setupVideoChatConfigModel();
     //
 
     protected abstract SurfaceViewRenderer setupLocalSurfaceViewRenderer();
@@ -122,19 +124,13 @@ public abstract class BaseChatFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-//        if (mChatInfoModel.chatInfo.isVideoInitConfig) {
-        if (true) {
-            CameraVideoCapturerHelper.startCameraVideoCapturer(mLocalVideoCapturer);
-        }
+        baseSwitchAudioVideo(setupVideoChatConfigModel().isVideoInitConfig);
     }
 
     @Override
     public void onPause() {
         super.onPause();
-//        if (mChatInfoModel.chatInfo.isVideoInitConfig) {
-        if (true) {
-            CameraVideoCapturerHelper.stopCameraVideoCapturer(mLocalVideoCapturer);
-        }
+        baseSwitchAudioVideo(setupVideoChatConfigModel().isVideoInitConfig);
     }
 
     @Override
@@ -626,12 +622,14 @@ public abstract class BaseChatFragment extends Fragment {
 
 
     protected void baseSwitchAudioVideo(boolean isVideo) {
-
-        //
         if (isVideo) {
             CameraVideoCapturerHelper.startCameraVideoCapturer(mLocalVideoCapturer);
+            mLocalSurfaceViewRenderer.setVisibility(View.VISIBLE);
+            mRemoteSurfaceViewRenderer.setVisibility(View.VISIBLE);
         } else {
             CameraVideoCapturerHelper.stopCameraVideoCapturer(mLocalVideoCapturer);
+            mLocalSurfaceViewRenderer.setVisibility(View.GONE);
+            mRemoteSurfaceViewRenderer.setVisibility(View.GONE);
         }
     }
 

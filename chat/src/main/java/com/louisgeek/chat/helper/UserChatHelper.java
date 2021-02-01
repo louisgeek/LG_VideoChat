@@ -37,6 +37,8 @@ public class UserChatHelper {
                 //只需要关注 VideoChatConfigModel
                 VideoChatConfigModel videoChatConfigModel = new VideoChatConfigModel();
                 videoChatConfigModel.isVideoInitConfig = true;
+                //
+//                videoChatConfigModel.videoChatParameter = true;
                 //邀请
                 String chatInfoModelJson = BaseUserChatHelper.sendInvite(userModel, otherUserModel, videoChatConfigModel);
                 //type 1
