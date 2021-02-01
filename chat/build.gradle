@@ -1,7 +1,11 @@
 plugins {
     id 'com.android.library'
+    //add
     id 'maven-publish'
 }
+//新版的各种配置方式，针对 jitpack.io 的生成不生效
+//仍旧生成 com/github/louisgeek/LG_VideoChat/1.0.0/LG_VideoChat-1.0.0.aar
+//
 //默认不指定
 //.m2/repository/LG_VideoChat/chat/unspecified/chat-unspecified.aar
 //全局指定group version
