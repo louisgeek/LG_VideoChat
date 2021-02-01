@@ -30,71 +30,13 @@ public class MyCameraVideoCapturer implements CameraVideoCapturer {
 
     private final boolean captureToTexture;
 
-    protected void createCameraSession(MyCamera1Session.CreateSessionCallback createSessionCallback, MyCamera1Session.Events events, Context applicationContext, SurfaceTextureHelper surfaceTextureHelper, String cameraName, int width, int height, int framerate) {
-        MyCamera1Session.create(createSessionCallback, events, this.captureToTexture, applicationContext, surfaceTextureHelper, MyCameraEnumerator.getCameraIndex(cameraName), width, height, framerate);
-    }
-
-    @Nullable
-    private final MyCamera1Session.CreateSessionCallback createSessionCallback = new MyCamera1Session.CreateSessionCallback() {
+    private final Runnable openCameraTimeoutRunnable = new Runnable() {
         @Override
-        public void onDone(MyCamera1Session session) {
-            checkIsOnCameraThread();
-            Logging.d(TAG, "Create session done. Switch state: " + switchState);
-            uiThreadHandler.removeCallbacks(openCameraTimeoutRunnable);
-            synchronized (stateLock) {
-                capturerObserver.onCapturerStarted(true);
-                sessionOpening = false;
-                currentSession = session;
-                cameraStatistics = new CameraStatistics(surfaceHelper, eventsHandler);
-                firstFrameObserved = false;
-                stateLock.notifyAll();
-                if (switchState == SwitchState.IN_PROGRESS) {
-                    switchState = SwitchState.IDLE;
-                    if (switchEventsHandler != null) {
-                        switchEventsHandler.onCameraSwitchDone(cameraEnumerator.isFrontFacing(cameraName));
-                        switchEventsHandler = null;
-                    }
-                } else if (switchState == SwitchState.PENDING) {
-                    switchState = SwitchState.IDLE;
-                    switchCameraInternal(switchEventsHandler);
-                }
-
-            }
-        }
-
-        @Override
-        public void onFailure(MyCamera1Session.FailureType failureType, String error) {
-            checkIsOnCameraThread();
-            uiThreadHandler.removeCallbacks(openCameraTimeoutRunnable);
-            synchronized (stateLock) {
-                capturerObserver.onCapturerStarted(false);
-                openAttemptsRemaining--;
-                if (openAttemptsRemaining <= 0) {
-                    Logging.w(TAG, "Opening camera failed, passing: " + error);
-                    sessionOpening = false;
-                    stateLock.notifyAll();
-                    if (switchState != SwitchState.IDLE) {
-                        if (switchEventsHandler != null) {
-                            switchEventsHandler.onCameraSwitchError(error);
-                            switchEventsHandler = null;
-                        }
-
-                        switchState = SwitchState.IDLE;
-                    }
-
-                    if (failureType == MyCamera1Session.FailureType.DISCONNECTED) {
-                        eventsHandler.onCameraDisconnected();
-                    } else {
-                        eventsHandler.onCameraError(error);
-                    }
-                } else {
-                    Logging.w(TAG, "Opening camera failed, retry: " + error);
-                    createSessionInternal(500);
-                }
-
-            }
+        public void run() {
+            eventsHandler.onCameraError("Camera failed to start within timeout.");
         }
     };
+    private final Object stateLock = new Object();
     @Nullable
     private final MyCamera1Session.Events cameraSessionEventsHandler = new MyCamera1Session.Events() {
         @Override
@@ -165,19 +107,12 @@ public class MyCameraVideoCapturer implements CameraVideoCapturer {
             }
         }
     };
-    private final Runnable openCameraTimeoutRunnable = new Runnable() {
-        @Override
-        public void run() {
-            eventsHandler.onCameraError("Camera failed to start within timeout.");
-        }
-    };
     @Nullable
     private Handler cameraThreadHandler;
     private Context applicationContext;
     private CapturerObserver capturerObserver;
     @Nullable
     private SurfaceTextureHelper surfaceHelper;
-    private final Object stateLock = new Object();
     private boolean sessionOpening;
     @Nullable
     private MyCamera1Session currentSession;
@@ -192,6 +127,71 @@ public class MyCameraVideoCapturer implements CameraVideoCapturer {
     @Nullable
     private CameraStatistics cameraStatistics;
     private boolean firstFrameObserved;
+    @Nullable
+    private final MyCamera1Session.CreateSessionCallback createSessionCallback = new MyCamera1Session.CreateSessionCallback() {
+        @Override
+        public void onDone(MyCamera1Session session) {
+            checkIsOnCameraThread();
+            Logging.d(TAG, "Create session done. Switch state: " + switchState);
+            uiThreadHandler.removeCallbacks(openCameraTimeoutRunnable);
+            synchronized (stateLock) {
+                capturerObserver.onCapturerStarted(true);
+                sessionOpening = false;
+                currentSession = session;
+                cameraStatistics = new CameraStatistics(surfaceHelper, eventsHandler);
+                firstFrameObserved = false;
+                stateLock.notifyAll();
+                if (switchState == SwitchState.IN_PROGRESS) {
+                    switchState = SwitchState.IDLE;
+                    if (switchEventsHandler != null) {
+                        switchEventsHandler.onCameraSwitchDone(cameraEnumerator.isFrontFacing(cameraName));
+                        switchEventsHandler = null;
+                    }
+                } else if (switchState == SwitchState.PENDING) {
+                    switchState = SwitchState.IDLE;
+                    switchCameraInternal(switchEventsHandler);
+                }
+
+            }
+        }
+
+        @Override
+        public void onFailure(MyCamera1Session.FailureType failureType, String error) {
+            checkIsOnCameraThread();
+            uiThreadHandler.removeCallbacks(openCameraTimeoutRunnable);
+            synchronized (stateLock) {
+                capturerObserver.onCapturerStarted(false);
+                openAttemptsRemaining--;
+                if (openAttemptsRemaining <= 0) {
+                    Logging.w(TAG, "Opening camera failed, passing: " + error);
+                    sessionOpening = false;
+                    stateLock.notifyAll();
+                    if (switchState != SwitchState.IDLE) {
+                        if (switchEventsHandler != null) {
+                            switchEventsHandler.onCameraSwitchError(error);
+                            switchEventsHandler = null;
+                        }
+
+                        switchState = SwitchState.IDLE;
+                    }
+
+                    if (failureType == MyCamera1Session.FailureType.DISCONNECTED) {
+                        eventsHandler.onCameraDisconnected();
+                    } else {
+                        eventsHandler.onCameraError(error);
+                    }
+                } else {
+                    Logging.w(TAG, "Opening camera failed, retry: " + error);
+                    createSessionInternal(500);
+                }
+
+            }
+        }
+    };
+
+    protected void createCameraSession(MyCamera1Session.CreateSessionCallback createSessionCallback, MyCamera1Session.Events events, Context applicationContext, SurfaceTextureHelper surfaceTextureHelper, String cameraName, int width, int height, int framerate) {
+        MyCamera1Session.create(createSessionCallback, events, this.captureToTexture, applicationContext, surfaceTextureHelper, MyCameraEnumerator.getCameraIndex(cameraName), width, height, framerate);
+    }
 
 
     public MyCameraVideoCapturer(String cameraName, @Nullable CameraEventsHandler eventsHandler, MyCameraEnumerator cameraEnumerator) {

@@ -14,9 +14,10 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.util.ObjectsCompat;
 
-import com.louisgeek.chat.helper.UserChatHelper;
+import com.louisgeek.chat.helper.ChatHelper;
 import com.louisgeek.chat.listener.OnChatListener;
-import com.louisgeek.chat.model.base.UserModel;
+import com.louisgeek.chat.model.ChatModel;
+import com.louisgeek.chat.model.UserModel;
 import com.louisgeek.chat.socketio.SocketIOEvent;
 import com.louisgeek.chat.socketio.SocketIOService;
 import com.louisgeek.lg_videochat.adapter.MyUserListAdapter;
@@ -44,27 +45,27 @@ public class UserListActivity extends AppCompatActivity {
 
 
         @Override
-        public void doVideoChatInvite() {
+        public void doChatInvite(ChatModel chatModel) {
 
         }
 
         @Override
-        public void doVideoChatCancel(boolean isTimeout) {
+        public void doChatCancel(boolean isTimeout) {
 
         }
 
         @Override
-        public void doVideoChatAgree() {
+        public void doChatAgree(ChatModel chatModel) {
 
         }
 
         @Override
-        public void doVideoChatReject() {
+        public void doChatReject() {
 
         }
 
         @Override
-        public void doVideoChatEnd() {
+        public void doChatEnd() {
 
         }
 
@@ -73,41 +74,41 @@ public class UserListActivity extends AppCompatActivity {
 
         }
 
-
         @Override
-        public void onVideoChatInvite() {
+        public void onChatInvite(ChatModel chatModel) {
 
         }
 
         @Override
-        public void onVideoChatCancel(boolean isTimeout) {
+        public void onChatCancel(boolean isTimeout) {
 
         }
 
         @Override
-        public void onVideoChatOffer() {
+        public void onChatOffer() {
 
         }
 
         @Override
-        public void onVideoChatAgree() {
+        public void onChatAgree(ChatModel chatModel) {
 
         }
 
         @Override
-        public void onVideoChatReject() {
+        public void onChatReject() {
 
         }
 
         @Override
-        public void onVideoChatAnswer() {
+        public void onChatAnswer() {
 
         }
 
         @Override
-        public void onVideoChatEnd() {
+        public void onChatEnd() {
 
         }
+
 
         @Override
         public void onSwitchAudioVideo(boolean isVideo) {
@@ -157,15 +158,15 @@ public class UserListActivity extends AppCompatActivity {
                 UserModel userModel = new UserModel();
                 userModel.userId = userId;
                 userModel.userName = userName;
-             /*   //
-                CallVideoHelper.userModel = userModel;
-                CallVideoHelper.otherUserModel = otherUserModel;*/
                 //
-                UserChatHelper.doInvite(mContext, userModel, otherUserModel, new UserChatHelper.OnInviteBack() {
+                ChatModel chatModel = new ChatModel();
+                chatModel.isVideo = true;
+                //
+                ChatHelper.doInvite(mContext, userModel, otherUserModel, chatModel, new ChatHelper.OnInviteBack() {
                     @Override
-                    public void onInvite(String chatInfoModelJson) {
+                    public void onInvite(ChatModel chatModel) {
                         //type 1
-                        showChatDialog(chatInfoModelJson);
+                        showChatDialog(chatModel);
                         //type 2
 //                        ChatActivity.actionStart(mContext, chatInfoModelJson);
                     }
@@ -194,7 +195,7 @@ public class UserListActivity extends AppCompatActivity {
 //        SocketManager.getInstance().init(CommonConstant.getBaseUrlSocket(), query);
 //        SocketService.actionStart(this, "http://192.168.12.222:3004", query);
 //        SocketIOService.actionStart(this, "http://192.168.1.14:3004", query);
-        SocketIOService.actionStart(mContext, "http://192.168.12.222:3004", query);
+        SocketIOService.actionStart(mContext, "http://192.168.12.222:3003", query);
     }
 
     private void initData() {
@@ -246,11 +247,11 @@ public class UserListActivity extends AppCompatActivity {
         String json = socketIOEvent.json;
         String event = socketIOEvent.event;
         Log.e(TAG, "onSubscribe: event " + event);
-        UserChatHelper.onInvite(socketIOEvent, new UserChatHelper.OnInviteBack() {
+        ChatHelper.onInvite(socketIOEvent, new ChatHelper.OnInviteBack() {
             @Override
-            public void onInvite(String chatInfoModelJson) {
+            public void onInvite(ChatModel chatModel) {
                 //type 1
-                showChatDialog(chatInfoModelJson);
+                showChatDialog(chatModel);
                 //type 2
 //                ChatActivity.actionStart(mContext, chatInfoModelJson);
             }
@@ -258,8 +259,8 @@ public class UserListActivity extends AppCompatActivity {
 
     }
 
-    private void showChatDialog(String chatInfoModelJson) {
-        ChatDialogFragment.newInstance(chatInfoModelJson, "")
+    private void showChatDialog(ChatModel chatModel) {
+        ChatDialogFragment.newInstance(chatModel, "")
                 .show(getSupportFragmentManager(), "showChatDialog");
     }
 }

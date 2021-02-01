@@ -44,6 +44,39 @@ public class Camera1Enumerator2 implements CameraEnumerator {
         mDefaultDisplayRotation = defaultDisplayRotation;
     }
 
+    private static int getRealDegrees(int cameraId, int rotation) {
+        Log.e(TAG, "getRealDegrees: " + rotation);
+        CameraInfo info = new CameraInfo();
+        Camera.getCameraInfo(cameraId, info);
+        int degrees = 0;
+        switch (rotation) {
+            case Surface.ROTATION_0:
+                degrees = 0;
+                break;
+            case Surface.ROTATION_90:
+                degrees = 90;
+                break;
+            case Surface.ROTATION_180:
+                degrees = 180;
+                break;
+            case Surface.ROTATION_270:
+                degrees = 270;
+                break;
+            default:
+        }
+
+        int result;
+        if (info.facing == CameraInfo.CAMERA_FACING_FRONT) {
+            Log.e(TAG, "getRealDegrees: CAMERA_FACING_FRONT " + info.orientation);
+            result = (info.orientation + degrees) % 360;
+            result = (360 - result) % 360;  // compensate the mirror
+        } else {  // back-facing
+            Log.e(TAG, "getRealDegrees: CAMERA_FACING_BACK " + info.orientation);
+            result = (info.orientation - degrees + 360) % 360;
+        }
+        return result;
+    }
+
     static synchronized List<CaptureFormat> getSupportedFormats(int cameraId) {
         if (cachedSupportedFormats == null) {
             cachedSupportedFormats = new ArrayList();
@@ -73,11 +106,6 @@ public class Camera1Enumerator2 implements CameraEnumerator {
         return getSupportedFormats(getCameraIndex(deviceName));
     }
 
-    @Override
-    public CameraVideoCapturer createCapturer(String deviceName, CameraEventsHandler eventsHandler) {
-        return new Camera1Capturer(deviceName, eventsHandler, this.captureToTexture);
-    }
-
     @Nullable
     private static CameraInfo getCameraInfo(int index) {
         CameraInfo info = new CameraInfo();
@@ -89,6 +117,29 @@ public class Camera1Enumerator2 implements CameraEnumerator {
             Logging.e("Camera1Enumerator", "getCameraInfo failed on index " + index, var3);
             return null;
         }
+    }
+
+    @Override
+    public String[] getDeviceNames() {
+        ArrayList<String> namesList = new ArrayList();
+
+        for (int i = 0; i < Camera.getNumberOfCameras(); ++i) {
+            String name = getDeviceName(i);
+            if (name != null) {
+                namesList.add(name);
+                Logging.d("Camera1Enumerator", "Index: " + i + ". " + name);
+            } else {
+                Logging.e("Camera1Enumerator", "Index: " + i + ". Failed to query camera name.");
+            }
+        }
+
+        String[] namesArray = new String[namesList.size()];
+        return namesList.toArray(namesArray);
+    }
+
+    @Override
+    public CameraVideoCapturer createCapturer(String deviceName, CameraEventsHandler eventsHandler) {
+        return new Camera1Capturer(deviceName, eventsHandler, this.captureToTexture);
     }
 
     private static List<CaptureFormat> enumerateFormats(int cameraId) {
@@ -144,57 +195,6 @@ public class Camera1Enumerator2 implements CameraEnumerator {
         long endTimeMs = SystemClock.elapsedRealtime();
         Logging.d("Camera1Enumerator", "Get supported formats for camera index " + cameraId + " done. Time spent: " + (endTimeMs - startTimeMs) + " ms.");
         return formatList;
-    }
-
-    private static int getRealDegrees(int cameraId, int rotation) {
-        Log.e(TAG, "getRealDegrees: " + rotation);
-        CameraInfo info = new CameraInfo();
-        Camera.getCameraInfo(cameraId, info);
-        int degrees = 0;
-        switch (rotation) {
-            case Surface.ROTATION_0:
-                degrees = 0;
-                break;
-            case Surface.ROTATION_90:
-                degrees = 90;
-                break;
-            case Surface.ROTATION_180:
-                degrees = 180;
-                break;
-            case Surface.ROTATION_270:
-                degrees = 270;
-                break;
-            default:
-        }
-
-        int result;
-        if (info.facing == CameraInfo.CAMERA_FACING_FRONT) {
-            Log.e(TAG, "getRealDegrees: CAMERA_FACING_FRONT " + info.orientation);
-            result = (info.orientation + degrees) % 360;
-            result = (360 - result) % 360;  // compensate the mirror
-        } else {  // back-facing
-            Log.e(TAG, "getRealDegrees: CAMERA_FACING_BACK " + info.orientation);
-            result = (info.orientation - degrees + 360) % 360;
-        }
-        return result;
-    }
-
-    @Override
-    public String[] getDeviceNames() {
-        ArrayList<String> namesList = new ArrayList();
-
-        for (int i = 0; i < Camera.getNumberOfCameras(); ++i) {
-            String name = getDeviceName(i);
-            if (name != null) {
-                namesList.add(name);
-                Logging.d("Camera1Enumerator", "Index: " + i + ". " + name);
-            } else {
-                Logging.e("Camera1Enumerator", "Index: " + i + ". Failed to query camera name.");
-            }
-        }
-
-        String[] namesArray = new String[namesList.size()];
-        return namesList.toArray(namesArray);
     }
 
     static List<org.webrtc.Size> convertSizes(List<Size> cameraSizes) {

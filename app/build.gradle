@@ -40,9 +40,12 @@ dependencies {
     androidTestImplementation 'androidx.test.ext:junit:1.1.2'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
 
+
+//        implementation 'org.webrtc:google-webrtc:1.0.+'
+    //如果用旧版，不要修改版本号21770 新版不兼容
+    implementation 'org.webrtc:google-webrtc:1.0.30039'
     implementation 'com.google.code.gson:gson:2.8.6'
     implementation 'org.greenrobot:eventbus:3.2.0'
-
     implementation 'com.tencent:mmkv-static:1.2.7'
 
 }

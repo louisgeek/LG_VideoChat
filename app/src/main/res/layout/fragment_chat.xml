@@ -2,8 +2,7 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:context=".video.VideoChatActivity">
+    android:layout_height="match_parent">
 
     <FrameLayout
         android:layout_width="match_parent"
@@ -23,6 +22,7 @@
     </FrameLayout>
 
     <LinearLayout
+        android:id="@+id/id_ll_title"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
@@ -50,6 +50,7 @@
     </LinearLayout>
 
     <LinearLayout
+        android:id="@+id/id_ll_btn_op_self"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
@@ -86,6 +87,7 @@
     </LinearLayout>
 
     <LinearLayout
+        android:id="@+id/id_ll_btn_op"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"

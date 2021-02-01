@@ -36,7 +36,7 @@ public class VideoConstants {
     //=====================
 //    private static String videoCodec = VIDEO_CODEC_H264_HIGH;
     //    private static String videoCodec = VIDEO_CODEC_VP9;
-    private static String videoCodec = VIDEO_CODEC_H264;
+    private static final String videoCodec = VIDEO_CODEC_H264;
 
     public static boolean enableH264HighProfile = VIDEO_CODEC_H264_HIGH.contains(videoCodec);
     public static boolean videoFlexfecEnabled = false;

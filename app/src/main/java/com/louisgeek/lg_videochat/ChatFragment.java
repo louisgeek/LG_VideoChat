@@ -1,28 +1,25 @@
-package com.louisgeek.chat;
+package com.louisgeek.lg_videochat;
 
 
 import android.os.Bundle;
 import android.os.CountDownTimer;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.util.ObjectsCompat;
-import androidx.fragment.app.Fragment;
 
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 import com.louisgeek.chat.base.BaseChatFragment;
-import com.louisgeek.chat.helper.ChatLogicHelper;
-import com.louisgeek.chat.helper.base.BaseUserChatHelper;
+import com.louisgeek.chat.helper.ChatUtil;
 import com.louisgeek.chat.listener.OnChatListener;
-import com.louisgeek.chat.model.base.ChatInfoModel;
-import com.louisgeek.chat.model.info.VideoChatConfigModel;
-import com.louisgeek.chat.model.info.VideoChatSdpInfoModel;
+import com.louisgeek.chat.model.ChatModel;
+import com.louisgeek.chat.model.SdpTypeChatModel;
 
 import org.webrtc.SurfaceViewRenderer;
 
@@ -30,34 +27,40 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-/**
- * A simple {@link Fragment} subclass.
- * Use the {@link ChatFragment#newInstance} factory method to
- * create an instance of this fragment.
- */
 public class ChatFragment extends BaseChatFragment {
 
-    protected List<OnChatListener> mOnChatListenerList = new ArrayList<>();
-    ChatInfoModel<VideoChatConfigModel> videoChatConfigModelChatInfoModel;
-    //
-    private SurfaceViewRenderer id_svr_local;
-
-    //
-    public ChatFragment() {
-        // Required empty public constructor
-    }
-
-    private SurfaceViewRenderer id_svr_remote;
-
+    private static final String TAG = "ChatFragment";
     //=====================================================================
     //
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
-
+    protected List<OnChatListener> mOnChatListenerList = new ArrayList<>();
     //
-    private String mParam1;
+    private SurfaceViewRenderer id_svr_local;
+    private SurfaceViewRenderer id_svr_remote;
+    //
+    private ChatModel mChatModel;
     private String mParam2;
+    //
+    private Button id_btn_reject;
+    private Button id_btn_cancel_end;
+    private Button id_btn_sw_v2a;
+    //
+    private Button id_btn_sw_video;
+    private Button id_btn_sw_audio;
+    private Button id_btn_sw_mk;
+    private TextView id_tv_name;
+    private Button id_btn_agree;
+    private TextView id_tv_time;
+    //
+    private LinearLayout id_ll_title;
+    private LinearLayout id_ll_btn_op_self;
+    private LinearLayout id_ll_btn_op;
+    //
+    private CountDownTimer mCountDownTimer;
+
+    //=========================================================================
 
     /**
      * Use this factory method to create a new instance of
@@ -68,14 +71,32 @@ public class ChatFragment extends BaseChatFragment {
      * @return A new instance of fragment VideoChatFragment.
      */
     //
-    public static ChatFragment newInstance(String param1, String param2) {
+    public static ChatFragment newInstance(ChatModel chatModel, String param2) {
         ChatFragment fragment = new ChatFragment();
         Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
+        args.putSerializable(ARG_PARAM1, chatModel);
         args.putString(ARG_PARAM2, param2);
         fragment.setArguments(args);
         return fragment;
     }
+
+    @Override
+    protected ChatModel setupChatModel() {
+        return mChatModel;
+    }
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        if (getArguments() != null) {
+            mChatModel = (ChatModel) getArguments().getSerializable(ARG_PARAM1);
+            mParam2 = getArguments().getString(ARG_PARAM2);
+        }
+        Log.e(TAG, "onCreate: ");
+//        String chatInfoModelJson = mParam1;
+//        CallConfigModel = new Gson().fromJson(chatInfoModelJson, CallConfigModel.class);
+    }
+
 
     public void addOnChatListener(OnChatListener onChatListener) {
         if (!mOnChatListenerList.contains(onChatListener)) {
@@ -83,53 +104,29 @@ public class ChatFragment extends BaseChatFragment {
         }
     }
 
-    public void removeOnVideoChatListener(OnChatListener onChatListener) {
+    public void removeonChatListener(OnChatListener onChatListener) {
         mOnChatListenerList.remove(onChatListener);
     }
 
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
-        }
-        String chatInfoModelJson = mParam1;
-        videoChatConfigModelChatInfoModel = new Gson().fromJson(chatInfoModelJson, new TypeToken<ChatInfoModel<VideoChatConfigModel>>() {
-        }.getType());
-    }
-
-    //=========================================================================
-
-
-    private Button id_btn_agree;
-    private Button id_btn_reject;
-    private Button id_btn_cancel_end;
-    private Button id_btn_sw_v2a;
-    private Button id_btn_sw_video;
-    private Button id_btn_sw_audio;
-    private Button id_btn_sw_mk;
-    private TextView id_tv_name;
-    private TextView id_tv_time;
-    private CountDownTimer mCountDownTimer;
-
     //
-
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
 //        return super.onCreateView(inflater, container, savedInstanceState);
-        View rootLayout = inflater.inflate(R.layout.fragment_video_chat, container, false);
+        View rootLayout = inflater.inflate(R.layout.fragment_chat, container, false);
         initView(rootLayout);
         return rootLayout;
     }
 
     private void initView(View rootLayout) {
-
         //
         id_svr_local = rootLayout.findViewById(R.id.id_svr_local);
         id_svr_remote = rootLayout.findViewById(R.id.id_svr_remote);
+        //
+        id_ll_title = rootLayout.findViewById(R.id.id_ll_title);
+        id_ll_btn_op_self = rootLayout.findViewById(R.id.id_ll_btn_op_self);
+        id_ll_btn_op = rootLayout.findViewById(R.id.id_ll_btn_op);
         //
         id_btn_agree = rootLayout.findViewById(R.id.id_btn_agree);
         id_btn_reject = rootLayout.findViewById(R.id.id_btn_reject);
@@ -138,46 +135,26 @@ public class ChatFragment extends BaseChatFragment {
         id_btn_sw_video = rootLayout.findViewById(R.id.id_btn_sw_video);
         id_btn_sw_audio = rootLayout.findViewById(R.id.id_btn_sw_audio);
         id_btn_sw_mk = rootLayout.findViewById(R.id.id_btn_sw_mk);
-        //
         id_tv_name = rootLayout.findViewById(R.id.id_tv_name);
         id_tv_time = rootLayout.findViewById(R.id.id_tv_time);
         //
-        //
-        boolean isCaller = ObjectsCompat.equals(videoChatConfigModelChatInfoModel.fromUserModel.userId, ChatLogicHelper.userModel.userId);
+        boolean isCaller = ObjectsCompat.equals(mChatModel.fromUserModel.userId, ChatUtil.userModel.userId);
         if (isCaller) {
-            for (OnChatListener onChatListener : mOnChatListenerList) {
-                onChatListener.doVideoChatInvite();
-            }
-            //
-            id_btn_reject.setVisibility(View.GONE);
-            id_btn_agree.setVisibility(View.GONE);
-            id_btn_cancel_end.setVisibility(View.VISIBLE);
-            id_btn_cancel_end.setText("取消");
-            //
-            id_tv_name.setText("正在呼叫" + ChatLogicHelper.otherUserModel.userName);
-
+            doChatInvite();
         } else {
-            for (OnChatListener onChatListener : mOnChatListenerList) {
-                onChatListener.onVideoChatInvite();
-            }
-            //
-            id_btn_reject.setVisibility(View.VISIBLE);
-            id_btn_agree.setVisibility(View.VISIBLE);
-            id_btn_cancel_end.setVisibility(View.GONE);
-            //
-            id_tv_name.setText(ChatLogicHelper.otherUserModel.userName + "邀请你通话");
+            onChatInvite();
         }
         //
         id_btn_agree.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                doVideoChatAgree();
+                doChatAgree();
             }
         });
         id_btn_reject.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                doVideoChatReject();
+                doChatReject();
             }
         });
         id_btn_cancel_end.setOnClickListener(new View.OnClickListener() {
@@ -187,7 +164,7 @@ public class ChatFragment extends BaseChatFragment {
                 onKeyBackPressed();
             }
         });
-        if (videoChatConfigModelChatInfoModel.chatInfo.isVideoInitConfig) {
+        if (mChatModel.isVideo) {
             id_btn_sw_v2a.setText("语音");
         } else {
             id_btn_sw_v2a.setText("视频");
@@ -257,18 +234,21 @@ public class ChatFragment extends BaseChatFragment {
             id_btn_sw_v2a.setText("视频");
             id_svr_local.setVisibility(View.VISIBLE);
             id_svr_remote.setVisibility(View.VISIBLE);
+            //
+            id_ll_title.setVisibility(View.VISIBLE);
+            id_ll_btn_op_self.setVisibility(View.VISIBLE);
+            id_ll_btn_op.setVisibility(View.VISIBLE);
         } else {
             id_btn_sw_v2a.setText("语音");
             id_svr_local.setVisibility(View.GONE);
             id_svr_remote.setVisibility(View.GONE);
+            //
+            id_ll_title.setVisibility(View.GONE);
+            id_ll_btn_op_self.setVisibility(View.GONE);
+            id_ll_btn_op.setVisibility(View.GONE);
         }
         //调用内部的
         baseSwitchAudioVideo(isVideo);
-    }
-
-    @Override
-    protected VideoChatConfigModel setupVideoChatConfigModel() {
-        return videoChatConfigModelChatInfoModel.chatInfo;
     }
 
     @Override
@@ -285,10 +265,10 @@ public class ChatFragment extends BaseChatFragment {
     @Override
     public boolean onKeyBackPressed() {
         if ("取消".equals(id_btn_cancel_end.getText().toString())) {
-            doVideoChatCancel(false);
+            doChatCancel(false);
             return true;
         } else if ("挂断".equals(id_btn_cancel_end.getText().toString())) {
-            doVideoChatEnd();
+            doChatEnd();
             return true;
         }
         return false;
@@ -301,47 +281,57 @@ public class ChatFragment extends BaseChatFragment {
     }
 
     //========================do ====================
-   /* public void  doVideoChatInvite(){
-
-    }*/
-    public void doVideoChatCancel(boolean isTimeout) {
+    public void doChatInvite() {
         for (OnChatListener onChatListener : mOnChatListenerList) {
-            onChatListener.doVideoChatCancel(isTimeout);
+            onChatListener.doChatInvite(mChatModel);
         }
         //
-        BaseUserChatHelper.sendCancel(isTimeout);
+        id_btn_reject.setVisibility(View.GONE);
+        id_btn_agree.setVisibility(View.GONE);
+        id_btn_cancel_end.setVisibility(View.VISIBLE);
+        id_btn_cancel_end.setText("取消");
+        //
+//        id_tv_name.setText("正在呼叫" + otherUserModel.userName);
+    }
+
+    public void doChatCancel(boolean isTimeout) {
+        for (OnChatListener onChatListener : mOnChatListenerList) {
+            onChatListener.doChatCancel(isTimeout);
+        }
+        //
+        ChatUtil.sendCancel(isTimeout);
         onBackUp();
     }
 
-    public void doVideoChatReject() {
+    public void doChatReject() {
         for (OnChatListener onChatListener : mOnChatListenerList) {
-            onChatListener.doVideoChatReject();
+            onChatListener.doChatReject();
         }
         //
-        BaseUserChatHelper.sendReject();
+        ChatUtil.sendReject();
         onBackUp();
     }
 
-    public void doVideoChatAgree() {
+    public void doChatAgree() {
         for (OnChatListener onChatListener : mOnChatListenerList) {
-            onChatListener.doVideoChatAgree();
+            onChatListener.doChatAgree(mChatModel);
         }
         //
-        BaseUserChatHelper.sendAgree();
+        ChatUtil.sendAgree();
         //
         id_btn_reject.setVisibility(View.GONE);
         id_btn_agree.setVisibility(View.GONE);
         id_btn_cancel_end.setVisibility(View.VISIBLE);
         id_btn_cancel_end.setText("挂断");
-        id_tv_name.setText("和" + ChatLogicHelper.otherUserModel.userName + "通话中");
+//        id_tv_name.setText("和" + otherUserModel.userName + "通话中");
     }
 
-    public void doVideoChatEnd() {
+    public void doChatEnd() {
         for (OnChatListener onChatListener : mOnChatListenerList) {
-            onChatListener.doVideoChatEnd();
+            onChatListener.doChatEnd();
         }
         //
-        BaseUserChatHelper.sendChatEnd();
+        ChatUtil.sendChatEnd();
         onBackUp();
     }
 
@@ -352,13 +342,13 @@ public class ChatFragment extends BaseChatFragment {
             onChatListener.doSwitchAudioVideo(isVideo);
         }
         //
-        BaseUserChatHelper.sendSwitchVideo(isVideo);
+        ChatUtil.sendSwitchVideo(isVideo);
     }
 
     protected void doSwitchCameraVideoCapturer() {
         //
-               /* for (OnVideoChatListener onVideoChatListener : mOnVideoChatListenerList) {
-                    onVideoChatListener.doSwitchCameraVideoCapturer();
+               /* for (onChatListener onChatListener : monChatListenerList) {
+                    onChatListener.doSwitchCameraVideoCapturer();
                 }*/
 
         //切换 摄像头
@@ -392,12 +382,27 @@ public class ChatFragment extends BaseChatFragment {
     }
 
     //===============================================
+
     @Override
-    protected void onVideoChatCancel(boolean isTimeout) {
-        super.onVideoChatCancel(isTimeout);
+    protected void onChatInvite() {
+        super.onChatInvite();
         //
         for (OnChatListener onChatListener : mOnChatListenerList) {
-            onChatListener.onVideoChatCancel(isTimeout);
+            onChatListener.onChatInvite(mChatModel);
+        }
+        //
+        id_btn_reject.setVisibility(View.VISIBLE);
+        id_btn_agree.setVisibility(View.VISIBLE);
+        id_btn_cancel_end.setVisibility(View.GONE);
+        //
+//        id_tv_name.setText(otherUserModel.userName + "邀请你通话");
+    }
+
+    protected void onChatCancel(boolean isTimeout) {
+        super.onChatCancel(isTimeout);
+        //
+        for (OnChatListener onChatListener : mOnChatListenerList) {
+            onChatListener.onChatCancel(isTimeout);
         }
         //
 //        ToastManager.show("被" + CallVideoHelper.otherUserModel.userName + "取消");
@@ -405,28 +410,26 @@ public class ChatFragment extends BaseChatFragment {
         onBackUp();
     }
 
-    @Override
-    protected void onVideoChatAgree() {
-        super.onVideoChatAgree();
+    protected void onChatAgree() {
+        super.onChatAgree();
         //
         for (OnChatListener onChatListener : mOnChatListenerList) {
-            onChatListener.onVideoChatAgree();
+            onChatListener.onChatAgree(mChatModel);
         }
         //
         id_btn_reject.setVisibility(View.GONE);
         id_btn_agree.setVisibility(View.GONE);
         id_btn_cancel_end.setVisibility(View.VISIBLE);
         id_btn_cancel_end.setText("挂断");
-        id_tv_name.setText("和" + ChatLogicHelper.otherUserModel.userName + "通话中");
+//        id_tv_name.setText("和" + otherUserModel.userName + "通话中");
 
     }
 
-    @Override
-    protected void onVideoChatReject() {
-        super.onVideoChatReject();
+    protected void onChatReject() {
+        super.onChatReject();
         //
         for (OnChatListener onChatListener : mOnChatListenerList) {
-            onChatListener.onVideoChatReject();
+            onChatListener.onChatReject();
         }
         //
 //        ToastManager.show("被" + CallVideoHelper.otherUserModel.userName + "拒绝");
@@ -434,31 +437,28 @@ public class ChatFragment extends BaseChatFragment {
 
     }
 
-    @Override
-    protected void onVideoChatEnd() {
-        super.onVideoChatEnd();
+    protected void onChatEnd() {
+        super.onChatEnd();
         //
         for (OnChatListener onChatListener : mOnChatListenerList) {
-            onChatListener.onVideoChatEnd();
+            onChatListener.onChatEnd();
         }
         //
 //        ToastManager.show("被" + CallVideoHelper.otherUserModel.userName + "挂断");
         onBackUp();
     }
 
-    @Override
-    protected void onVideoChatOffer(ChatInfoModel<VideoChatSdpInfoModel> chatInfoModel) {
-        super.onVideoChatOffer(chatInfoModel);
+    protected void onChatOffer(SdpTypeChatModel sdpTypeChatModel) {
+        super.onChatOffer(sdpTypeChatModel);
+    }
+
+    protected void onChatAnswer(SdpTypeChatModel sdpTypeChatModel) {
+        super.onChatAnswer(sdpTypeChatModel);
     }
 
     @Override
-    protected void onVideoChatAnswer(ChatInfoModel<VideoChatSdpInfoModel> chatInfoModel) {
-        super.onVideoChatAnswer(chatInfoModel);
-    }
-
-    @Override
-    protected void onSwitchAudioVideo(ChatInfoModel chatInfoModel, boolean isVideo) {
-        super.onSwitchAudioVideo(chatInfoModel, isVideo);
+    protected void onSwitchAudioVideo(boolean isVideo) {
+        super.onSwitchAudioVideo(isVideo);
         //
         switchAudioVideo(isVideo);
         //
@@ -472,20 +472,27 @@ public class ChatFragment extends BaseChatFragment {
     protected void baseOnCameraStatusChange(String cameraStatus) {
         super.baseOnCameraStatusChange(cameraStatus);
         //
-       /* for (OnVideoChatListener onVideoChatListener : mOnVideoChatListenerList) {
-            onVideoChatListener.onCameraStatusChange(cameraStatus);
+       /* for (onChatListener onChatListener : monChatListenerList) {
+            onChatListener.onCameraStatusChange(cameraStatus);
         }*/
         //
-        if (ChatLogicHelper.CameraStatus_None.equals(cameraStatus)) {
+        if (CameraStatus_None.equals(cameraStatus)) {
             id_btn_sw_video.setText("无摄");
-        } else if (ChatLogicHelper.CameraStatus_COMM.equals(cameraStatus)) {
+        } else if (CameraStatus_COMM.equals(cameraStatus)) {
             id_btn_sw_video.setText("通用");
-        } else if (ChatLogicHelper.CameraStatus_FRONT.equals(cameraStatus)) {
+        } else if (CameraStatus_FRONT.equals(cameraStatus)) {
             id_btn_sw_video.setText("前置");
-        } else if (ChatLogicHelper.CameraStatus_BACK.equals(cameraStatus)) {
+        } else if (CameraStatus_BACK.equals(cameraStatus)) {
             id_btn_sw_video.setText("后置");
         }
     }
+
+  /*  @Override
+    protected void baseSwitchAudioVideo(boolean isVideo) {
+        super.baseSwitchAudioVideo(isVideo);
+        //
+        id_ll_btn_op_self
+    }*/
 
     private void onBackUp() {
       /*  FragmentManager fragmentManager = getActivity().getSupportFragmentManager();

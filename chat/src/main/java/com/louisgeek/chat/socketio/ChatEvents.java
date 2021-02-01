@@ -9,11 +9,15 @@ import java.util.Map;
 public class ChatEvents {
     public static final String online = "online";
     //
-    public static final String videoChatInvite = "videoChatInvite";
-    public static final String videoChatCancel = "videoChatCancel";
+    public static final String invite = "invite";
+    public static final String cancel = "cancel";
     //
-    public static final String videoChatAgree = "videoChatAgree";
-    public static final String videoChatReject = "videoChatReject";
+    public static final String agree = "agree";
+    public static final String reject = "reject";
+
+    public static final String end = "end";
+
+    public static final String switchVideo2Audio = "switchVideo2Audio";
     //局部监听 视频通信界面
     public static final String offer = "offer";
     public static final String answer = "answer";
@@ -27,11 +31,13 @@ public class ChatEvents {
     static {
         eventMap.put(online, new EventEmitterListener(online));
         //
-        eventMap.put(videoChatInvite, new EventEmitterListener(videoChatInvite));
-        eventMap.put(videoChatCancel, new EventEmitterListener(videoChatCancel));
+        eventMap.put(invite, new EventEmitterListener(invite));
+        eventMap.put(cancel, new EventEmitterListener(cancel));
         //
-        eventMap.put(videoChatAgree, new EventEmitterListener(videoChatAgree));
-        eventMap.put(videoChatReject, new EventEmitterListener(videoChatReject));
+        eventMap.put(agree, new EventEmitterListener(agree));
+        eventMap.put(reject, new EventEmitterListener(reject));
+        //
+        eventMap.put(end, new EventEmitterListener(end));
         //
         eventMap.put(offer, new EventEmitterListener(offer));
         eventMap.put(answer, new EventEmitterListener(answer));

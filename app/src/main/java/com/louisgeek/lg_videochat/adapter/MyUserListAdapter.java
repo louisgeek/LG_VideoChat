@@ -6,7 +6,7 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
 
-import com.louisgeek.chat.model.base.UserModel;
+import com.louisgeek.chat.model.UserModel;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -1,12 +1,12 @@
-package com.louisgeek.chat.model.info;
+package com.louisgeek.chat.model;
 
 
-public class VideoChatInfoModel {
+public class SdpInfoChatModel extends ChatModel {
     public String sdpMLineIndex;
     public String sdpMid;
     public String sdp;
 
-    public VideoChatInfoModel(String sdpMLineIndex, String sdpMid, String sdp) {
+    public SdpInfoChatModel(String sdpMLineIndex, String sdpMid, String sdp) {
         this.sdpMLineIndex = sdpMLineIndex;
         this.sdpMid = sdpMid;
         this.sdp = sdp;

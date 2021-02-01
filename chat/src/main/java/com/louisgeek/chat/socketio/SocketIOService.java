@@ -20,17 +20,17 @@ import java.util.concurrent.TimeUnit;
 
 public class SocketIOService extends Service {
     private static final String TAG = "SocketService";
- /*   private static final ServiceConnection mServiceConnection = new ServiceConnection() {
-        @Override
-        public void onServiceConnected(ComponentName name, IBinder binder) {
-            Log.e(TAG, "onServiceConnected: " + name);
-        }
+    /*   private static final ServiceConnection mServiceConnection = new ServiceConnection() {
+           @Override
+           public void onServiceConnected(ComponentName name, IBinder binder) {
+               Log.e(TAG, "onServiceConnected: " + name);
+           }
 
-        @Override
-        public void onServiceDisconnected(ComponentName name) {
-            Log.e(TAG, "onServiceDisconnected: " + name);
-        }
-    };*/
+           @Override
+           public void onServiceDisconnected(ComponentName name) {
+               Log.e(TAG, "onServiceDisconnected: " + name);
+           }
+       };*/
     private ScheduledExecutorService mScheduledExecutor;
 
   /*  public static void actionBind(Context context, String serviceUri, String serviceQuery) {

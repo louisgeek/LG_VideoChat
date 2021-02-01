@@ -23,8 +23,16 @@ public class MyCameraEnumerator implements CameraEnumerator {
     private static List<List<CameraEnumerationAndroid.CaptureFormat>> cachedSupportedFormats;
     private final boolean captureToTexture;
 
-    public boolean isCaptureToTexture() {
-        return captureToTexture;
+    static List<Size> convertSizes(List<Camera.Size> cameraSizes) {
+        List<Size> sizes = new ArrayList();
+        Iterator var2 = cameraSizes.iterator();
+
+        while (var2.hasNext()) {
+            Camera.Size size = (Camera.Size) var2.next();
+            sizes.add(new Size(size.width, size.height));
+        }
+
+        return sizes;
     }
 
     public MyCameraEnumerator() {
@@ -47,6 +55,10 @@ public class MyCameraEnumerator implements CameraEnumerator {
         return cachedSupportedFormats.get(cameraId);
     }
 
+    public boolean isCaptureToTexture() {
+        return captureToTexture;
+    }
+
     @Override
     public boolean isFrontFacing(String deviceName) {
         Camera.CameraInfo info = getCameraInfo(getCameraIndex(deviceName));
@@ -60,8 +72,21 @@ public class MyCameraEnumerator implements CameraEnumerator {
     }
 
     @Override
-    public List<CameraEnumerationAndroid.CaptureFormat> getSupportedFormats(String deviceName) {
-        return getSupportedFormats(getCameraIndex(deviceName));
+    public String[] getDeviceNames() {
+        ArrayList<String> namesList = new ArrayList();
+
+        for (int i = 0; i < Camera.getNumberOfCameras(); ++i) {
+            String name = getDeviceName(i);
+            if (name != null) {
+                namesList.add(name);
+                Logging.d("Camera1Enumerator", "Index: " + i + ". " + name);
+            } else {
+                Logging.e("Camera1Enumerator", "Index: " + i + ". Failed to query camera name.");
+            }
+        }
+
+        String[] namesArray = new String[namesList.size()];
+        return namesList.toArray(namesArray);
     }
 
     private static List<CameraEnumerationAndroid.CaptureFormat> enumerateFormats(int cameraId) {
@@ -119,33 +144,8 @@ public class MyCameraEnumerator implements CameraEnumerator {
     }
 
     @Override
-    public String[] getDeviceNames() {
-        ArrayList<String> namesList = new ArrayList();
-
-        for (int i = 0; i < Camera.getNumberOfCameras(); ++i) {
-            String name = getDeviceName(i);
-            if (name != null) {
-                namesList.add(name);
-                Logging.d("Camera1Enumerator", "Index: " + i + ". " + name);
-            } else {
-                Logging.e("Camera1Enumerator", "Index: " + i + ". Failed to query camera name.");
-            }
-        }
-
-        String[] namesArray = new String[namesList.size()];
-        return namesList.toArray(namesArray);
-    }
-
-    static List<Size> convertSizes(List<Camera.Size> cameraSizes) {
-        List<Size> sizes = new ArrayList();
-        Iterator var2 = cameraSizes.iterator();
-
-        while (var2.hasNext()) {
-            Camera.Size size = (Camera.Size) var2.next();
-            sizes.add(new org.webrtc.Size(size.width, size.height));
-        }
-
-        return sizes;
+    public List<CameraEnumerationAndroid.CaptureFormat> getSupportedFormats(String deviceName) {
+        return getSupportedFormats(getCameraIndex(deviceName));
     }
 
     static List<CameraEnumerationAndroid.CaptureFormat.FramerateRange> convertFramerates(List<int[]> arrayRanges) {

@@ -1,43 +1,45 @@
 package com.louisgeek.chat.listener;
 
 
+import com.louisgeek.chat.model.ChatModel;
+
 /**
  * Created by louisgeek on 2019/4/13.
  */
 public interface OnChatListener {
     //========================== do =======================
-    void doVideoChatInvite();
+    void doChatInvite(ChatModel chatModel);
 
-    void doVideoChatCancel(boolean isTimeout);
-
-    //------------------
-    void doVideoChatAgree();
-
-    void doVideoChatReject();
+    void doChatCancel(boolean isTimeout);
 
     //------------------
-    void doVideoChatEnd();
+    void doChatAgree(ChatModel chatModel);
+
+    void doChatReject();
+
+    //------------------
+    void doChatEnd();
 
     void doSwitchAudioVideo(boolean isVideo);
 
 //    void doSwitchCameraVideoCapturer();
 
     //========================== on =======================
-    void onVideoChatInvite();
+    void onChatInvite(ChatModel chatModel);
 
-    void onVideoChatCancel(boolean isTimeout);
+    void onChatCancel(boolean isTimeout);
 
-    void onVideoChatOffer();
-
-    //------------------
-    void onVideoChatAgree();
-
-    void onVideoChatReject();
-
-    void onVideoChatAnswer();
+    void onChatOffer();
 
     //------------------
-    void onVideoChatEnd();
+    void onChatAgree(ChatModel chatModel);
+
+    void onChatReject();
+
+    void onChatAnswer();
+
+    //------------------
+    void onChatEnd();
 
     void onSwitchAudioVideo(boolean isVideo);
 

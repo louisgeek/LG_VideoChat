@@ -9,37 +9,41 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.louisgeek.chat.ChatFragment;
 import com.louisgeek.chat.listener.OnChatListener;
+import com.louisgeek.chat.model.ChatModel;
+import com.louisgeek.lg_videochat.ChatFragment;
 import com.louisgeek.lg_videochat.R;
 
 public class ChatActivity extends AppCompatActivity {
     private static final String TAG = "ChatActivity";
     private final OnChatListener mOnChatListener = new OnChatListener() {
+
+
         @Override
-        public void doVideoChatInvite() {
+        public void doChatInvite(ChatModel chatModel) {
 
         }
 
         @Override
-        public void doVideoChatCancel(boolean isTimeout) {
+        public void doChatCancel(boolean isTimeout) {
             Toast.makeText(ChatActivity.this, "取消", Toast.LENGTH_SHORT).show();
             finish();
         }
 
         @Override
-        public void doVideoChatAgree() {
+        public void doChatAgree(ChatModel chatModel) {
             Toast.makeText(ChatActivity.this, "同意", Toast.LENGTH_SHORT).show();
         }
 
+
         @Override
-        public void doVideoChatReject() {
+        public void doChatReject() {
             Toast.makeText(ChatActivity.this, "拒绝", Toast.LENGTH_SHORT).show();
             finish();
         }
 
         @Override
-        public void doVideoChatEnd() {
+        public void doChatEnd() {
             Toast.makeText(ChatActivity.this, "挂断", Toast.LENGTH_SHORT).show();
             finish();
         }
@@ -50,39 +54,41 @@ public class ChatActivity extends AppCompatActivity {
         }
 
         @Override
-        public void onVideoChatInvite() {
+        public void onChatInvite(ChatModel chatModel) {
 
         }
 
+
         @Override
-        public void onVideoChatCancel(boolean isTimeout) {
+        public void onChatCancel(boolean isTimeout) {
             Toast.makeText(ChatActivity.this, "被取消", Toast.LENGTH_SHORT).show();
             finish();
         }
 
         @Override
-        public void onVideoChatOffer() {
+        public void onChatOffer() {
 
         }
 
         @Override
-        public void onVideoChatAgree() {
+        public void onChatAgree(ChatModel chatModel) {
             Toast.makeText(ChatActivity.this, "被同意", Toast.LENGTH_SHORT).show();
         }
 
+
         @Override
-        public void onVideoChatReject() {
+        public void onChatReject() {
             Toast.makeText(ChatActivity.this, "被拒绝", Toast.LENGTH_SHORT).show();
             finish();
         }
 
         @Override
-        public void onVideoChatAnswer() {
+        public void onChatAnswer() {
 
         }
 
         @Override
-        public void onVideoChatEnd() {
+        public void onChatEnd() {
             Toast.makeText(ChatActivity.this, "被挂断", Toast.LENGTH_SHORT).show();
             finish();
         }
@@ -92,11 +98,11 @@ public class ChatActivity extends AppCompatActivity {
             Toast.makeText(ChatActivity.this, "被切换到视频" + isVideo, Toast.LENGTH_SHORT).show();
         }
     };
-    private ChatFragment mVideoChatFragment;
+    private ChatFragment mChatFragment;
 
-    public static void actionStart(Context context, String chatInfoModelJson) {
+    public static void actionStart(Context context, ChatModel chatModel) {
         Intent intent = new Intent(context, ChatActivity.class);
-        intent.putExtra("chatInfoModelJson", chatInfoModelJson);
+        intent.putExtra("chatModel", chatModel);
         context.startActivity(intent);
 
     }
@@ -115,42 +121,42 @@ public class ChatActivity extends AppCompatActivity {
         id_agree.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mVideoChatFragment.doVideoChatAgree();
+                mChatFragment.doChatAgree();
             }
         });
         id_reject.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mVideoChatFragment.doVideoChatReject();
+                mChatFragment.doChatReject();
             }
         });
         id_cancel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mVideoChatFragment.doVideoChatCancel(false);
+                mChatFragment.doChatCancel(false);
             }
         });
         id_end.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mVideoChatFragment.doVideoChatEnd();
+                mChatFragment.doChatEnd();
             }
         });
         id_sw_av.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 boolean isVideo = false;//todo
-                mVideoChatFragment.doSwitchAudioVideo(isVideo);
+                mChatFragment.doSwitchAudioVideo(isVideo);
             }
         });
 
-        String chatInfoModelJson = getIntent().getStringExtra("chatInfoModelJson");
+        ChatModel chatModel = (ChatModel) getIntent().getSerializableExtra("chatModel");
 
         //直接打开
-        mVideoChatFragment = ChatFragment.newInstance(chatInfoModelJson, "");
-        mVideoChatFragment.addOnChatListener(mOnChatListener);
+        mChatFragment = ChatFragment.newInstance(chatModel, "");
+        mChatFragment.addOnChatListener(mOnChatListener);
         getSupportFragmentManager().beginTransaction()
-                .replace(R.id.id_frame_layout_container, mVideoChatFragment)
+                .replace(R.id.id_frame_layout_container, mChatFragment)
                 .commitAllowingStateLoss();
     }
 

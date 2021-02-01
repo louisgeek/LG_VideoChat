@@ -1,12 +1,10 @@
-package com.louisgeek.chat.base;
+package com.louisgeek.chat.helper;
 
 import android.util.Log;
 
-import com.google.gson.Gson;
-import com.louisgeek.chat.helper.base.BaseUserChatHelper;
 import com.louisgeek.chat.listener.SdpObserverListener;
-import com.louisgeek.chat.model.info.VideoChatInfoModel;
-import com.louisgeek.chat.model.info.VideoChatSdpInfoModel;
+import com.louisgeek.chat.model.SdpInfoChatModel;
+import com.louisgeek.chat.model.SdpTypeChatModel;
 
 import org.webrtc.IceCandidate;
 import org.webrtc.MediaConstraints;
@@ -16,10 +14,8 @@ import org.webrtc.SessionDescription;
 /**
  * Created by louisgeek on 2019/10/22.
  */
-public class BaseChatPeerSendHelper {
-    private static final String TAG = "VideoChatSocketHelper";
-    private final static Gson mGson = new Gson();
-
+public class PeerConnectionSendHelper {
+    private static final String TAG = "PeerConnectionSendHelpe";
 
     /**
      *
@@ -32,7 +28,7 @@ public class BaseChatPeerSendHelper {
                 //
                 String sdpType = sessionDescription.type.canonicalForm();
                 mPeerConnection.setLocalDescription(this, sessionDescription);
-                BaseUserChatHelper.sendOffer(new VideoChatSdpInfoModel(sdpType, sessionDescription.description));
+                ChatUtil.sendOffer(new SdpTypeChatModel(sdpType, sessionDescription.description));
             }
         }, mSdpMediaConstraints);
     }
@@ -49,7 +45,7 @@ public class BaseChatPeerSendHelper {
                 //
                 String sdpType = sessionDescription.type.canonicalForm();
                 mPeerConnection.setLocalDescription(this, sessionDescription);
-                BaseUserChatHelper.sendAnswer(new VideoChatSdpInfoModel(sdpType, sessionDescription.description));
+                ChatUtil.sendAnswer(new SdpTypeChatModel(sdpType, sessionDescription.description));
 
             }
         }, mSdpMediaConstraints);
@@ -80,10 +76,10 @@ public class BaseChatPeerSendHelper {
         }, sessionDescription);
     }
 
-    public static void onReceiveCandidate(PeerConnection mPeerConnection, VideoChatInfoModel videoChatInfoModel) {
-        String sdpMid = videoChatInfoModel.sdpMid;
-        String _sdpMLineIndex = videoChatInfoModel.sdpMLineIndex;
-        String sdp = videoChatInfoModel.sdp;
+    public static void onReceiveCandidate(PeerConnection mPeerConnection, SdpInfoChatModel sdpInfoChatModel) {
+        String sdpMid = sdpInfoChatModel.sdpMid;
+        String _sdpMLineIndex = sdpInfoChatModel.sdpMLineIndex;
+        String sdp = sdpInfoChatModel.sdp;
         //
         int sdpMLineIndex = Integer.parseInt(_sdpMLineIndex);
         IceCandidate remoteIceCandidate = new IceCandidate(sdpMid, sdpMLineIndex, sdp);

@@ -15,16 +15,14 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 import com.louisgeek.chat.helper.CallPlayerHelper;
-import com.louisgeek.chat.helper.ChatLogicHelper;
-import com.louisgeek.chat.helper.base.BaseUserChatHelper;
+import com.louisgeek.chat.helper.ChatUtil;
+import com.louisgeek.chat.helper.PeerConnectionSendHelper;
 import com.louisgeek.chat.listener.PeerConnectionObserverListener;
-import com.louisgeek.chat.model.ChatInfoTypeModel;
-import com.louisgeek.chat.model.base.ChatInfoModel;
-import com.louisgeek.chat.model.info.VideoChatConfigModel;
-import com.louisgeek.chat.model.info.VideoChatInfoModel;
-import com.louisgeek.chat.model.info.VideoChatSdpInfoModel;
+import com.louisgeek.chat.model.ChatModel;
+import com.louisgeek.chat.model.InfoChatModel;
+import com.louisgeek.chat.model.SdpInfoChatModel;
+import com.louisgeek.chat.model.SdpTypeChatModel;
 import com.louisgeek.chat.socketio.ChatEvents;
 import com.louisgeek.chat.socketio.SocketIOEvent;
 import com.louisgeek.chat.video.CameraVideoCapturerHelper;
@@ -61,25 +59,26 @@ import org.webrtc.audio.AudioDeviceModule;
 
 /**
  * Created by louisgeek on 2019/10/18.
- * OnVideoChatListener, VideoChatAble
- * 模板
  */
 public abstract class BaseChatFragment extends Fragment {
-    private static final String TAG = "BaseVideoFragment";
-
-    protected abstract VideoChatConfigModel setupVideoChatConfigModel();
     //
-
-    protected abstract SurfaceViewRenderer setupLocalSurfaceViewRenderer();
-
-    protected abstract SurfaceViewRenderer setupRemoteSurfaceViewRenderer();
-
-    public abstract boolean onKeyBackPressed();
+    public static final String CameraStatus_None = "CameraStatus_None";
+    public static final String CameraStatus_COMM = "CameraStatus_COMM";
+    public static final String CameraStatus_BACK = "CameraStatus_BACK";
+    public static final String CameraStatus_FRONT = "CameraStatus_FRONT";
+    private static final String TAG = "BaseChatFragment";
+    private final Gson mGson = new Gson();
+    private final int smallSize = 400;
 
     protected Activity mActivity;
     protected Context mContext;
+
+    //
+    public BaseChatFragment() {
+        // Required empty public constructor
+    }
+
     private boolean localIsSmall = false;
-    private final int smallSize = 400;
     //video
     //
     private EglBase mEglBase = EglBase.create();
@@ -110,27 +109,26 @@ public abstract class BaseChatFragment extends Fragment {
     //11 mPeerConnectionFactory createLocalMediaStream & addStream
 //    private MediaStream mLocalMediaStream;
     private AudioManager mAudioManager;
-    private final Gson mGson = new Gson();
 
-    public BaseChatFragment() {
-        // Required empty public constructor
+    //
+    protected abstract ChatModel setupChatModel();
 
-    }
+    protected abstract SurfaceViewRenderer setupLocalSurfaceViewRenderer();
 
-    public boolean getIsPlay() {
-        return true;
-    }
+    protected abstract SurfaceViewRenderer setupRemoteSurfaceViewRenderer();
+
+    public abstract boolean onKeyBackPressed();
 
     @Override
     public void onResume() {
         super.onResume();
-        baseSwitchAudioVideo(setupVideoChatConfigModel().isVideoInitConfig);
+        baseSwitchAudioVideo(setupChatModel().isVideo);
     }
 
     @Override
     public void onPause() {
         super.onPause();
-        baseSwitchAudioVideo(setupVideoChatConfigModel().isVideoInitConfig);
+        baseSwitchAudioVideo(setupChatModel().isVideo);
     }
 
     @Override
@@ -162,13 +160,13 @@ public abstract class BaseChatFragment extends Fragment {
             //播放呼出铃声
             CallPlayerHelper.playCallInRing(getIsPlay());//暂时借用呼入声音
             //
-//            onVideoChatCallOut(mChatInfoModel.chatInfo);
+//            onChatCallOut(mChatInfoModel.chatInfo);
 
         } else {
             //播放呼入铃声
             CallPlayerHelper.playCallInRing(getIsPlay());
             //
-//            onVideoChatCallIn(mChatInfoModel.chatInfo);
+//            onChatCallIn(mChatInfoModel.chatInfo);
         }
 */
     }
@@ -179,7 +177,7 @@ public abstract class BaseChatFragment extends Fragment {
         //
         mLocalSurfaceViewRenderer.init(this.mEglBase.getEglBaseContext(), null);
         //后置摄像头一般设置成 false
-        mLocalSurfaceViewRenderer.setMirror(!ChatLogicHelper.CameraStatus_BACK.equals(mCameraStatus));
+        mLocalSurfaceViewRenderer.setMirror(!CameraStatus_BACK.equals(mCameraStatus));
         //视频画面缩放模式
 //       自动适应屏幕比例， 画面存在被裁剪的可能
 //        remoteSurfaceViewRenderer.setScalingType(RendererCommon.ScalingType.SCALE_ASPECT_FILL);
@@ -414,13 +412,14 @@ public abstract class BaseChatFragment extends Fragment {
         {
             //普通摄像头
             mLocalVideoCapturer = CameraVideoCapturerHelper.getFrontFacingCameraVideoCapturer(mContext);
+            mLocalVideoCapturer = null;// FIXME: 2021/2/1
             if (mLocalVideoCapturer != null) {
-                mCameraStatus = ChatLogicHelper.CameraStatus_FRONT;
+                mCameraStatus = CameraStatus_FRONT;
             } else {
                 //没有前置
                 mLocalVideoCapturer = CameraVideoCapturerHelper.getBackFacingCameraVideoCapturer(mContext);
                 if (mLocalVideoCapturer != null) {
-                    mCameraStatus = ChatLogicHelper.CameraStatus_BACK;
+                    mCameraStatus = CameraStatus_BACK;
                 }
             }
             //
@@ -442,7 +441,7 @@ public abstract class BaseChatFragment extends Fragment {
                     @Override
                     public void onIceCandidate(IceCandidate iceCandidate) {
                         //
-                        BaseUserChatHelper.sendCandidate(new VideoChatInfoModel(
+                        ChatUtil.sendCandidate(new SdpInfoChatModel(
                                 String.valueOf(iceCandidate.sdpMLineIndex),
                                 iceCandidate.sdpMid,
                                 iceCandidate.sdp));
@@ -552,7 +551,7 @@ public abstract class BaseChatFragment extends Fragment {
         }
         if (mLocalVideoCapturer != null) {
             try {
-                mLocalVideoCapturer.stopCapture();
+//                mLocalVideoCapturer.stopCapture();
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -573,45 +572,32 @@ public abstract class BaseChatFragment extends Fragment {
         String json = socketIOEvent.json;
         String event = socketIOEvent.event;
         Log.e(TAG, "onSubscribe: event " + event + " " + json);
-        if (ChatEvents.userChat.equals(event)) {
-            ChatInfoModel chatInfoModelTemp = mGson.fromJson(json, ChatInfoModel.class);
-            String chatInfoType = chatInfoModelTemp.chatInfoType;
-            if (ChatInfoTypeModel.ChatInfo_Invite.equals(chatInfoType)) {
-                //被邀请的消息需要在外面处理 这里收不到
-            } else if (ChatInfoTypeModel.ChatInfo_Cancel.equals(chatInfoType)) {
-                ChatInfoModel<Boolean> chatInfoModel = mGson.fromJson(json, new TypeToken<ChatInfoModel<Boolean>>() {
-                }.getType());
-                boolean isTimeout = chatInfoModel.chatInfo;
-                onVideoChatCancel(isTimeout);
-            } else if (ChatInfoTypeModel.ChatInfo_Agree.equals(chatInfoType)) {
-                ChatInfoModel<String> chatInfoModel = mGson.fromJson(json, new TypeToken<ChatInfoModel<String>>() {
-                }.getType());
-                onVideoChatAgree();
-            } else if (ChatInfoTypeModel.ChatInfo_Reject.equals(chatInfoType)) {
-                ChatInfoModel<String> chatInfoModel = mGson.fromJson(json, new TypeToken<ChatInfoModel<String>>() {
-                }.getType());
-                onVideoChatReject();
-            } else if (ChatInfoTypeModel.ChatInfo_ChatEnd.equals(chatInfoType)) {
-                onVideoChatEnd();
-            } else if (ChatInfoTypeModel.ChatInfo_SwitchVideo2Audio.equals(chatInfoType)) {
-                ChatInfoModel<Boolean> chatInfoModel = mGson.fromJson(json, new TypeToken<ChatInfoModel<Boolean>>() {
-                }.getType());
-                boolean isVideo = chatInfoModel.chatInfo;
-                //收到切换音视频信息
-                onSwitchAudioVideo(chatInfoModelTemp, isVideo);
-            } else if (ChatInfoTypeModel.ChatInfo_Offer.equals(chatInfoType)) {
-                ChatInfoModel<VideoChatSdpInfoModel> chatInfoModel = mGson.fromJson(json, new TypeToken<ChatInfoModel<VideoChatSdpInfoModel>>() {
-                }.getType());
-                onVideoChatOffer(chatInfoModel);
-            } else if (ChatInfoTypeModel.ChatInfo_Answer.equals(chatInfoType)) {
-                ChatInfoModel<VideoChatSdpInfoModel> chatInfoModel = mGson.fromJson(json, new TypeToken<ChatInfoModel<VideoChatSdpInfoModel>>() {
-                }.getType());
-                onVideoChatAnswer(chatInfoModel);
-            } else if (ChatInfoTypeModel.ChatInfo_Candidate.equals(chatInfoType)) {
-                ChatInfoModel<VideoChatInfoModel> chatInfoModel = mGson.fromJson(json, new TypeToken<ChatInfoModel<VideoChatInfoModel>>() {
-                }.getType());
-                onCandidate(chatInfoModel);
-            }
+        if (ChatEvents.invite.equals(event)) {
+            //被邀请的消息需要在外面处理,邀请之前此页面未打开，所以这里收不到
+        } else if (ChatEvents.cancel.equals(event)) {
+            InfoChatModel infoChatModel = mGson.fromJson(json, InfoChatModel.class);
+            boolean isTimeout = Boolean.parseBoolean(infoChatModel.info);
+            onChatCancel(isTimeout);
+        } else if (ChatEvents.agree.equals(event)) {
+            onChatAgree();
+        } else if (ChatEvents.reject.equals(event)) {
+            onChatReject();
+        } else if (ChatEvents.end.equals(event)) {
+            onChatEnd();
+        } else if (ChatEvents.switchVideo2Audio.equals(event)) {
+            InfoChatModel infoChatModel = mGson.fromJson(json, InfoChatModel.class);
+            boolean isVideo = Boolean.parseBoolean(infoChatModel.info);
+            //收到切换音视频信息
+//            onSwitchAudioVideo(isVideo);
+        } else if (ChatEvents.offer.equals(event)) {
+            SdpTypeChatModel sdpTypeChatModel = mGson.fromJson(json, SdpTypeChatModel.class);
+            onChatOffer(sdpTypeChatModel);
+        } else if (ChatEvents.answer.equals(event)) {
+            SdpTypeChatModel sdpTypeChatModel = mGson.fromJson(json, SdpTypeChatModel.class);
+            onChatAnswer(sdpTypeChatModel);
+        } else if (ChatEvents.candidate.equals(event)) {
+            SdpInfoChatModel sdpInfoChatModel = mGson.fromJson(json, SdpInfoChatModel.class);
+            onCandidate(sdpInfoChatModel);
         }
     }
 
@@ -624,12 +610,12 @@ public abstract class BaseChatFragment extends Fragment {
     protected void baseSwitchAudioVideo(boolean isVideo) {
         if (isVideo) {
             CameraVideoCapturerHelper.startCameraVideoCapturer(mLocalVideoCapturer);
-            mLocalSurfaceViewRenderer.setVisibility(View.VISIBLE);
-            mRemoteSurfaceViewRenderer.setVisibility(View.VISIBLE);
+//            mLocalSurfaceViewRenderer.setVisibility(View.VISIBLE);
+//            mRemoteSurfaceViewRenderer.setVisibility(View.VISIBLE);
         } else {
             CameraVideoCapturerHelper.stopCameraVideoCapturer(mLocalVideoCapturer);
-            mLocalSurfaceViewRenderer.setVisibility(View.GONE);
-            mRemoteSurfaceViewRenderer.setVisibility(View.GONE);
+//            mLocalSurfaceViewRenderer.setVisibility(View.GONE);
+//            mRemoteSurfaceViewRenderer.setVisibility(View.GONE);
         }
     }
 
@@ -644,10 +630,10 @@ public abstract class BaseChatFragment extends Fragment {
                             //
                             if (isFrontFacing) {
                                 //切换到前置
-                                mCameraStatus = ChatLogicHelper.CameraStatus_FRONT;
+                                mCameraStatus = CameraStatus_FRONT;
                             } else {
                                 //切换到后置
-                                mCameraStatus = ChatLogicHelper.CameraStatus_BACK;
+                                mCameraStatus = CameraStatus_BACK;
                             }
 
                         }
@@ -666,24 +652,29 @@ public abstract class BaseChatFragment extends Fragment {
     //============= on ==============
 
     //============= 被呼叫者操作 ==============
-    protected void onVideoChatCancel(boolean isTimeout) {
+
+    protected void onChatInvite() {
 
     }
 
-    protected void onVideoChatAgree() {
+    protected void onChatCancel(boolean isTimeout) {
+
+    }
+
+    protected void onChatAgree() {
         //发送 offer
-        BaseChatPeerSendHelper.callerSendOffer(mPeerConnection, mSdpMediaConstraints);
+        PeerConnectionSendHelper.callerSendOffer(mPeerConnection, mSdpMediaConstraints);
     }
 
-    protected void onVideoChatReject() {
+    protected void onChatReject() {
 
     }
 
-    protected void onVideoChatOffer(ChatInfoModel<VideoChatSdpInfoModel> chatInfoModel) {
-        String description = chatInfoModel.chatInfo.description;
-        BaseChatPeerSendHelper.calleeReceiveOffer(mPeerConnection, description);
+    protected void onChatOffer(SdpTypeChatModel sdpTypeChatModel) {
+        String description = sdpTypeChatModel.description;
+        PeerConnectionSendHelper.calleeReceiveOffer(mPeerConnection, description);
         //
-        BaseChatPeerSendHelper.calleeSendAnswer(mPeerConnection, mSdpMediaConstraints);
+        PeerConnectionSendHelper.calleeSendAnswer(mPeerConnection, mSdpMediaConstraints);
         //停止铃声播放
         CallPlayerHelper.release();
         mAudioManager.setMode(AudioManager.MODE_IN_COMMUNICATION);
@@ -698,10 +689,10 @@ public abstract class BaseChatFragment extends Fragment {
         });*/
     }
 
-    protected void onVideoChatAnswer(ChatInfoModel<VideoChatSdpInfoModel> chatInfoModel) {
-        String description = chatInfoModel.chatInfo.description;
+    protected void onChatAnswer(SdpTypeChatModel sdpTypeChatModel) {
+        String description = sdpTypeChatModel.description;
         //
-        BaseChatPeerSendHelper.callerReceiveAnswer(mPeerConnection, description);
+        PeerConnectionSendHelper.callerReceiveAnswer(mPeerConnection, description);
         //停止铃声播放
         CallPlayerHelper.release();
         mAudioManager.setMode(AudioManager.MODE_IN_COMMUNICATION);
@@ -719,19 +710,16 @@ public abstract class BaseChatFragment extends Fragment {
 
     // ============= 双方操作 ==============
     //被挂断
-    protected void onVideoChatEnd() {
+    protected void onChatEnd() {
 
     }
 
     //被切换音频
-    protected void onSwitchAudioVideo(ChatInfoModel chatInfoModel, boolean isVideo) {
+    protected void onSwitchAudioVideo(boolean isVideo) {
         //
-        if (isVideo) {
-            CameraVideoCapturerHelper.startCameraVideoCapturer(mLocalVideoCapturer);
-        } else {
-            CameraVideoCapturerHelper.stopCameraVideoCapturer(mLocalVideoCapturer);
-        }
+        baseSwitchAudioVideo(isVideo);
     }
+
 
     //摄像头状态改变
     protected void baseOnCameraStatusChange(String cameraStatus) {
@@ -745,14 +733,14 @@ public abstract class BaseChatFragment extends Fragment {
      */
 
 
-    private void onCandidate(ChatInfoModel<VideoChatInfoModel> chatInfoModel) {
+    private void onCandidate(SdpInfoChatModel sdpInfoChatModel) {
         //offer 回调发送的情况
         // B do【A打给B，B收到A的candidate】
         //answer 回调发送的情况
         // A do【A打给B，A收到B的candidate】
-        String sdpMid = chatInfoModel.chatInfo.sdpMid;
-        String _sdpMLineIndex = chatInfoModel.chatInfo.sdpMLineIndex;
-        String sdp = chatInfoModel.chatInfo.sdp;
+        String sdpMid = sdpInfoChatModel.sdpMid;
+        String _sdpMLineIndex = sdpInfoChatModel.sdpMLineIndex;
+        String sdp = sdpInfoChatModel.sdp;
         //
         int sdpMLineIndex = Integer.parseInt(_sdpMLineIndex);
         IceCandidate remoteIceCandidate = new IceCandidate(sdpMid, sdpMLineIndex, sdp);

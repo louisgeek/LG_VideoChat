@@ -15,6 +15,7 @@ import java.util.TimerTask;
 /**
  * Created by louisgeek on 2019/10/23.
  */
+@Deprecated
 public class CallPlayerHelper {
     private static MediaPlayer mMediaPlayer;
     private static Ringtone mRingtone;
@@ -22,7 +23,7 @@ public class CallPlayerHelper {
 
 
     ///
-    public static void playCallInRing(Context context,boolean isPlay) {
+    public static void playCallInRing(Context context, boolean isPlay) {
         if (!isPlay) {
             return;
         }
@@ -68,7 +69,7 @@ public class CallPlayerHelper {
         }
     }
 
-    public static void playCallRingTest(Context context,int resId) {
+    public static void playCallRingTest(Context context, int resId) {
         if (mMediaPlayer != null) {
             mMediaPlayer.stop();
         }

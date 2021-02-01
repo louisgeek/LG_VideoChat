@@ -10,8 +10,9 @@ import android.widget.Toast;
 import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
 
-import com.louisgeek.chat.ChatFragment;
 import com.louisgeek.chat.listener.OnChatListener;
+import com.louisgeek.chat.model.ChatModel;
+import com.louisgeek.lg_videochat.ChatFragment;
 import com.louisgeek.lg_videochat.R;
 
 /**
@@ -26,13 +27,96 @@ public class ChatDialogFragment extends DialogFragment {
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
 
-    // TODO: Rename and change types of parameters
-    private String mParam1;
+    private final OnChatListener mOnChatListener = new OnChatListener() {
+
+
+        @Override
+        public void doChatInvite(ChatModel chatModel) {
+
+        }
+
+        @Override
+        public void doChatCancel(boolean isTimeout) {
+            Toast.makeText(requireContext(), "取消", Toast.LENGTH_SHORT).show();
+            dismissAllowingStateLoss();
+        }
+
+        @Override
+        public void doChatAgree(ChatModel chatModel) {
+            Toast.makeText(requireContext(), "同意", Toast.LENGTH_SHORT).show();
+        }
+
+
+        @Override
+        public void doChatReject() {
+            Toast.makeText(requireContext(), "拒绝", Toast.LENGTH_SHORT).show();
+            dismissAllowingStateLoss();
+        }
+
+        @Override
+        public void doChatEnd() {
+            Toast.makeText(requireContext(), "挂断", Toast.LENGTH_SHORT).show();
+            dismissAllowingStateLoss();
+        }
+
+        @Override
+        public void doSwitchAudioVideo(boolean isVideo) {
+            Toast.makeText(requireContext(), "切换到视频" + isVideo, Toast.LENGTH_SHORT).show();
+        }
+
+        @Override
+        public void onChatInvite(ChatModel chatModel) {
+
+        }
+
+
+        @Override
+        public void onChatCancel(boolean isTimeout) {
+            Toast.makeText(requireContext(), "被取消", Toast.LENGTH_SHORT).show();
+            dismissAllowingStateLoss();
+        }
+
+        @Override
+        public void onChatOffer() {
+
+        }
+
+        @Override
+        public void onChatAgree(ChatModel chatModel) {
+            Toast.makeText(requireContext(), "被同意", Toast.LENGTH_SHORT).show();
+        }
+
+
+        @Override
+        public void onChatReject() {
+            Toast.makeText(requireContext(), "被拒绝", Toast.LENGTH_SHORT).show();
+            dismissAllowingStateLoss();
+        }
+
+        @Override
+        public void onChatAnswer() {
+
+        }
+
+        @Override
+        public void onChatEnd() {
+            Toast.makeText(requireContext(), "被挂断", Toast.LENGTH_SHORT).show();
+            dismissAllowingStateLoss();
+        }
+
+        @Override
+        public void onSwitchAudioVideo(boolean isVideo) {
+            Toast.makeText(requireContext(), "被切换到视频 " + isVideo, Toast.LENGTH_SHORT).show();
+        }
+    };
     private String mParam2;
 
     public ChatDialogFragment() {
         // Required empty public constructor
     }
+
+    // TODO: Rename and change types of parameters
+    private ChatModel mChatModel;
 
     /**
      * Use this factory method to create a new instance of
@@ -43,22 +127,13 @@ public class ChatDialogFragment extends DialogFragment {
      * @return A new instance of fragment ChatDialogFragment.
      */
     // TODO: Rename and change types and number of parameters
-    public static ChatDialogFragment newInstance(String param1, String param2) {
+    public static ChatDialogFragment newInstance(ChatModel chatModel, String param2) {
         ChatDialogFragment fragment = new ChatDialogFragment();
         Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
+        args.putSerializable(ARG_PARAM1, chatModel);
         args.putString(ARG_PARAM2, param2);
         fragment.setArguments(args);
         return fragment;
-    }
-
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
-        }
     }
 
     @Override
@@ -70,84 +145,14 @@ public class ChatDialogFragment extends DialogFragment {
         return rootLayout;
     }
 
-    private final OnChatListener mOnChatListener = new OnChatListener() {
-        @Override
-        public void doVideoChatInvite() {
-
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        if (getArguments() != null) {
+            mChatModel = (ChatModel) getArguments().getSerializable(ARG_PARAM1);
+            mParam2 = getArguments().getString(ARG_PARAM2);
         }
-
-        @Override
-        public void doVideoChatCancel(boolean isTimeout) {
-            Toast.makeText(requireContext(), "取消", Toast.LENGTH_SHORT).show();
-            dismissAllowingStateLoss();
-        }
-
-        @Override
-        public void doVideoChatAgree() {
-            Toast.makeText(requireContext(), "同意", Toast.LENGTH_SHORT).show();
-        }
-
-        @Override
-        public void doVideoChatReject() {
-            Toast.makeText(requireContext(), "拒绝", Toast.LENGTH_SHORT).show();
-            dismissAllowingStateLoss();
-        }
-
-        @Override
-        public void doVideoChatEnd() {
-            Toast.makeText(requireContext(), "挂断", Toast.LENGTH_SHORT).show();
-            dismissAllowingStateLoss();
-        }
-
-        @Override
-        public void doSwitchAudioVideo(boolean isVideo) {
-            Toast.makeText(requireContext(), "切换到视频" + isVideo, Toast.LENGTH_SHORT).show();
-        }
-
-        @Override
-        public void onVideoChatInvite() {
-
-        }
-
-        @Override
-        public void onVideoChatCancel(boolean isTimeout) {
-            Toast.makeText(requireContext(), "被取消", Toast.LENGTH_SHORT).show();
-            dismissAllowingStateLoss();
-        }
-
-        @Override
-        public void onVideoChatOffer() {
-
-        }
-
-        @Override
-        public void onVideoChatAgree() {
-            Toast.makeText(requireContext(), "被同意", Toast.LENGTH_SHORT).show();
-        }
-
-        @Override
-        public void onVideoChatReject() {
-            Toast.makeText(requireContext(), "被拒绝", Toast.LENGTH_SHORT).show();
-            dismissAllowingStateLoss();
-        }
-
-        @Override
-        public void onVideoChatAnswer() {
-
-        }
-
-        @Override
-        public void onVideoChatEnd() {
-            Toast.makeText(requireContext(), "被挂断", Toast.LENGTH_SHORT).show();
-            dismissAllowingStateLoss();
-        }
-
-        @Override
-        public void onSwitchAudioVideo(boolean isVideo) {
-            Toast.makeText(requireContext(), "被切换到视频 " + isVideo, Toast.LENGTH_SHORT).show();
-        }
-    };
-
+    }
 
     private void initView(View rootLayout) {
         Button id_agree = rootLayout.findViewById(R.id.id_agree);
@@ -158,25 +163,25 @@ public class ChatDialogFragment extends DialogFragment {
         id_agree.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mChatFragment.doVideoChatAgree();
+                mChatFragment.doChatAgree();
             }
         });
         id_reject.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mChatFragment.doVideoChatReject();
+                mChatFragment.doChatReject();
             }
         });
         id_cancel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mChatFragment.doVideoChatCancel(false);
+                mChatFragment.doChatCancel(false);
             }
         });
         id_end.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mChatFragment.doVideoChatEnd();
+                mChatFragment.doChatEnd();
             }
         });
         id_sw_av.setOnClickListener(new View.OnClickListener() {
@@ -187,10 +192,8 @@ public class ChatDialogFragment extends DialogFragment {
             }
         });
         //
-        String chatInfoModelJson = mParam1;
-
         //直接打开
-        mChatFragment = ChatFragment.newInstance(chatInfoModelJson, "");
+        mChatFragment = ChatFragment.newInstance(mChatModel, "");
         mChatFragment.addOnChatListener(mOnChatListener);
         getChildFragmentManager().beginTransaction()
                 .replace(R.id.id_frame_layout_container, mChatFragment)
