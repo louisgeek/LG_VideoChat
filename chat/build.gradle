@@ -2,7 +2,11 @@ plugins {
     id 'com.android.library'
     id 'maven-publish'
 }
-group='com.github.louisgeekkk'
+//默认不指定
+//.m2/repository/LG_VideoChat/chat/unspecified/chat-unspecified.aar
+//全局指定group version
+//.m2/repository/com/github/louisgeek/chat/1.0.11/chat-1.0.11.aar
+group='com.github.louisgeek'
 version = '1.0.11'
 
 android {
@@ -42,9 +46,11 @@ afterEvaluate {
                 from components.release
 
                 // You can then customize attributes of the publication as shown below.
-                groupId = 'com.github.louisgeeeeeee'
-                artifactId = 'chat'
-                version = '1.0.0'
+                //局部自定义
+                //.m2/repository/com/louisgeek/chat_lib/1.2/chat_lib-1.2.aar
+                groupId = 'com.louisgeek'
+                artifactId = 'chat_lib'
+                version = '1.2'
             }
         }
     }
