@@ -551,7 +551,7 @@ public abstract class BaseChatFragment extends Fragment {
         }
         if (mLocalVideoCapturer != null) {
             try {
-//                mLocalVideoCapturer.stopCapture();
+                mLocalVideoCapturer.stopCapture();
             } catch (Exception e) {
                 e.printStackTrace();
             }

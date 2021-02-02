@@ -48,6 +48,13 @@ public class ChatUtil {
         });
     }
 
+    /**
+     * 不推荐直接发送
+     *
+     * @param chatModel
+     * @return
+     */
+    @Deprecated
     public static String sendInvite(ChatModel chatModel) {
         //
         chatModel.fromUserModel = ChatUtil.userModel;
