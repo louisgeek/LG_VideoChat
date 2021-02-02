@@ -160,9 +160,11 @@ public class UserListActivity extends AppCompatActivity {
                 userModel.userName = userName;
                 //
                 ChatModel chatModel = new ChatModel();
+                chatModel.fromUserModel = userModel;
+                chatModel.toUserModel = otherUserModel;
                 chatModel.isVideo = true;
                 //
-                ChatHelper.doInvite(mContext, userModel, otherUserModel, chatModel, new ChatHelper.OnInviteBack() {
+                ChatHelper.doInvite(mContext, chatModel, new ChatHelper.OnInviteBack() {
                     @Override
                     public void onInvite(ChatModel chatModel) {
                         //type 1
