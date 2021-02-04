@@ -22,8 +22,8 @@ public class ChatHelper {
         //
         ChatUtil.online(ChatUtil.otherUserModel, new ChatUtil.OnlineBack() {
             @Override
-            public void online(boolean isOnline) {
-                if (!isOnline) {
+            public void checkOnline(boolean online) {
+                if (!online) {
                     Toast.makeText(context, ChatUtil.otherUserModel.userName + "不在线", Toast.LENGTH_SHORT).show();
                    /* if (onInviteBack != null) {
                         onInviteBack.onOffline(otherUserModel);
@@ -41,6 +41,15 @@ public class ChatHelper {
                     onInviteBack.onInvite(chatModel);
                 }
             }
+
+            @Override
+            public void selfOffline() {
+//                Toast.makeText(context, "设备当前不在线", Toast.LENGTH_SHORT).show();
+                if (onInviteBack != null) {
+                    onInviteBack.onOffline();
+                }
+            }
+
         });
 
     }
@@ -64,5 +73,7 @@ public class ChatHelper {
 
     public interface OnInviteBack {
         void onInvite(ChatModel chatModel);
+
+        void onOffline();
     }
 }

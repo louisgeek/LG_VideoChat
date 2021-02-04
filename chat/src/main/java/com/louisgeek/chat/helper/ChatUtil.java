@@ -27,25 +27,32 @@ public class ChatUtil {
 
     public static void online(UserModel otherUserModel, OnlineBack onlineBack) {
         String userModelJson = mGson.toJson(otherUserModel);
-        emit(ChatEvents.online, userModelJson, new Ack() {
-            @Override
-            public void call(Object... args) {
-                String userId = (String) args[0];
-                String online = (String) args[1];
-                Log.e(TAG, "call: userId " + userId + " online " + online);
-                //
-                new Handler(Looper.getMainLooper()).post(new Runnable() {
-                    @Override
-                    public void run() {
-                        if (onlineBack != null) {
-                            boolean isOnline = online.equals("1");
-                            onlineBack.online(isOnline);
+        Socket socket = SocketIOManager.getInstance().socket();
+        if (socket != null && socket.connected()) {
+            socket.emit(ChatEvents.online, userModelJson, new Ack() {
+                @Override
+                public void call(Object... args) {
+                    String userId = (String) args[0];
+                    String online = (String) args[1];
+                    Log.e(TAG, "call: userId " + userId + " online " + online);
+                    //
+                    new Handler(Looper.getMainLooper()).post(new Runnable() {
+                        @Override
+                        public void run() {
+                            if (onlineBack != null) {
+                                onlineBack.checkOnline("1".equals(online));
+                            }
                         }
-                    }
-                });
+                    });
 
+                }
+            });
+        } else {
+            if (onlineBack != null) {
+                onlineBack.selfOffline();
             }
-        });
+        }
+
     }
 
     /**
@@ -147,6 +154,10 @@ public class ChatUtil {
             Log.e(TAG, "socket is null");
             return;
         }
+        if (socket.connected()) {
+            Log.e(TAG, "socket is not connected");
+            return;
+        }
         socket.emit(event, json);
     }
 
@@ -160,7 +171,9 @@ public class ChatUtil {
     }
 
     public interface OnlineBack {
-        void online(boolean isOnline);
+        void checkOnline(boolean online);
+
+        void selfOffline();
     }
 
 }
