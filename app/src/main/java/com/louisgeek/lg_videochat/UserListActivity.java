@@ -172,6 +172,11 @@ public class UserListActivity extends AppCompatActivity {
                         //type 2
 //                        ChatActivity.actionStart(mContext, chatInfoModelJson);
                     }
+
+                    @Override
+                    public void onSelfOffline() {
+
+                    }
                 });
             }
 
@@ -256,6 +261,11 @@ public class UserListActivity extends AppCompatActivity {
                 showChatDialog(chatModel);
                 //type 2
 //                ChatActivity.actionStart(mContext, chatInfoModelJson);
+            }
+
+            @Override
+            public void onSelfOffline() {
+
             }
         });
 

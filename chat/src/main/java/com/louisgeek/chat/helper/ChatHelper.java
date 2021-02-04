@@ -46,7 +46,7 @@ public class ChatHelper {
             public void selfOffline() {
 //                Toast.makeText(context, "设备当前不在线", Toast.LENGTH_SHORT).show();
                 if (onInviteBack != null) {
-                    onInviteBack.onOffline();
+                    onInviteBack.onSelfOffline();
                 }
             }
 
@@ -74,6 +74,6 @@ public class ChatHelper {
     public interface OnInviteBack {
         void onInvite(ChatModel chatModel);
 
-        void onOffline();
+        void onSelfOffline();
     }
 }
