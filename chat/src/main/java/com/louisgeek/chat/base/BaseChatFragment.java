@@ -545,10 +545,7 @@ public abstract class BaseChatFragment extends Fragment {
             mRemoteSurfaceViewRenderer.release();
             mRemoteSurfaceViewRenderer = null;
         }
-        if (mSurfaceTextureHelper != null) {
-            mSurfaceTextureHelper.dispose();
-            mSurfaceTextureHelper = null;
-        }
+        //
         if (mLocalVideoCapturer != null) {
             try {
                 mLocalVideoCapturer.stopCapture();
@@ -558,7 +555,10 @@ public abstract class BaseChatFragment extends Fragment {
             mLocalVideoCapturer.dispose();
             mLocalVideoCapturer = null;
         }
-
+        if (mSurfaceTextureHelper != null) {
+            mSurfaceTextureHelper.dispose();
+            mSurfaceTextureHelper = null;
+        }
         if (mPeerConnectionFactory != null) {
             mPeerConnectionFactory.dispose();
             mPeerConnectionFactory = null;
