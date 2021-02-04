@@ -2,7 +2,7 @@ package com.louisgeek.chat.video;
 
 import android.content.Context;
 
-import com.louisgeek.chat.video.inner.MyCameraEnumerator;
+import com.louisgeek.chat.video.inner30039.MyCamera1Enumerator_30039;
 
 import org.webrtc.CameraEnumerator;
 import org.webrtc.CameraVideoCapturer;
@@ -16,7 +16,7 @@ public class MyCameraVideoCapturerHelper {
 
 
     public static VideoCapturer getBackFacingCameraVideoCapturer(Context context) {
-        CameraEnumerator cameraEnumerator = new MyCameraEnumerator(true);
+        CameraEnumerator cameraEnumerator = new MyCamera1Enumerator_30039(true);
         //找后置
         for (String deviceName : cameraEnumerator.getDeviceNames()) {
             if (cameraEnumerator.isBackFacing(deviceName)) {
@@ -30,7 +30,7 @@ public class MyCameraVideoCapturerHelper {
     }
 
     public static VideoCapturer getFrontFacingCameraVideoCapturer(Context context) {
-        CameraEnumerator cameraEnumerator = new MyCameraEnumerator(true);
+        CameraEnumerator cameraEnumerator = new MyCamera1Enumerator_30039(true);
         //找前置
         for (String deviceName : cameraEnumerator.getDeviceNames()) {
             if (cameraEnumerator.isFrontFacing(deviceName)) {

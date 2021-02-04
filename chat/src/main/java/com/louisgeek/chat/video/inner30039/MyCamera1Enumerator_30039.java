@@ -1,4 +1,4 @@
-package com.louisgeek.chat.video.inner;
+package com.louisgeek.chat.video.inner30039;
 
 import android.hardware.Camera;
 import android.os.SystemClock;
@@ -18,7 +18,7 @@ import java.util.List;
 /**
  * Created by louisgeek on 2020/2/28.
  */
-public class MyCameraEnumerator implements CameraEnumerator {
+public class MyCamera1Enumerator_30039 implements CameraEnumerator {
     private static final String TAG = "MyCameraEnumerator";
     private static List<List<CameraEnumerationAndroid.CaptureFormat>> cachedSupportedFormats;
     private final boolean captureToTexture;
@@ -35,11 +35,11 @@ public class MyCameraEnumerator implements CameraEnumerator {
         return sizes;
     }
 
-    public MyCameraEnumerator() {
+    public MyCamera1Enumerator_30039() {
         this(true);
     }
 
-    public MyCameraEnumerator(boolean captureToTexture) {
+    public MyCamera1Enumerator_30039(boolean captureToTexture) {
         this.captureToTexture = captureToTexture;
     }
 
@@ -162,7 +162,7 @@ public class MyCameraEnumerator implements CameraEnumerator {
 
     @Override
     public CameraVideoCapturer createCapturer(String deviceName, CameraVideoCapturer.CameraEventsHandler cameraEventsHandler) {
-        return new MyCameraVideoCapturer(deviceName, cameraEventsHandler, new MyCameraEnumerator(captureToTexture));
+        return new MyCameraCapturer_30039(deviceName, cameraEventsHandler, new MyCamera1Enumerator_30039(captureToTexture));
     }
 
 

@@ -30,7 +30,7 @@ import java.util.List;
  *
  */
 public class Camera1Enumerator2 implements CameraEnumerator {
-    private static final String TAG = "Camera1Enumerator";
+    private static final String TAG = "Camera1Enumerator2";
     private static List<List<CaptureFormat>> cachedSupportedFormats;
     private final boolean captureToTexture;
     private static int mDefaultDisplayRotation;

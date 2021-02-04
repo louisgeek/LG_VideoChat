@@ -1,4 +1,4 @@
-package com.louisgeek.chat.video.inner;
+package com.louisgeek.chat.video.inner32006;
 
 import android.content.Context;
 import android.graphics.Matrix;
@@ -28,20 +28,16 @@ import java.util.concurrent.TimeUnit;
 /**
  * Created by louisgeek on 2020/2/28.
  */
-public class MyCamera1Session {
+public class MyCamera1Session_32006 {
 
-    private static final String TAG = "MyCamera1Session";
     static final ArrayList<Size> COMMON_RESOLUTIONS = new ArrayList(Arrays.asList(new Size(160, 120), new Size(240, 160), new Size(320, 240), new Size(400, 240), new Size(480, 320), new Size(640, 360), new Size(640, 480), new Size(768, 480), new Size(854, 480), new Size(800, 600), new Size(960, 540), new Size(960, 640), new Size(1024, 576), new Size(1024, 600), new Size(1280, 720), new Size(1280, 1024), new Size(1920, 1080), new Size(1920, 1440), new Size(2560, 1440), new Size(3840, 2160)));
+    private static final String TAG = "MyCamera1Session";
+    private static final int NUMBER_OF_CAPTURE_BUFFERS = 3;
 
     static {
 //        camera1ResolutionHistogram = Histogram.createEnumeration("WebRTC.Android.Camera1.Resolution", CameraEnumerationAndroid.COMMON_RESOLUTIONS.size());
     }
 
-    /* int shine_orientation = 270;//组合 270 false
-     boolean shine_mirror = false;*/
-    int shine_orientation = 90;//组合 90 true
-    boolean shine_mirror = true;
-    private static final int NUMBER_OF_CAPTURE_BUFFERS = 3;
     /*   private static final Histogram camera1StartTimeMsHistogram = Histogram.createCounts("WebRTC.Android.Camera1.StartTimeMs", 1, 10000, 50);
        private static final Histogram camera1StopTimeMsHistogram = Histogram.createCounts("WebRTC.Android.Camera1.StopTimeMs", 1, 10000, 50);
        private static final Histogram camera1ResolutionHistogram;*/
@@ -55,8 +51,30 @@ public class MyCamera1Session {
     private final Camera.CameraInfo info;
     private final CameraEnumerationAndroid.CaptureFormat captureFormat;
     private final long constructionTimeNs;
+    /* int shine_orientation = 270;//组合 270 false
+     boolean shine_mirror = false;*/
+    int shine_orientation = 90;//组合 90 true
+    boolean shine_mirror = true;
+    int dnake_orientation = 0;//组合 0 false
+    boolean danke_mirror = false;
     private SessionState state;
     private boolean firstFrameReported;
+
+    private MyCamera1Session_32006(Events events, boolean captureToTexture, Context applicationContext, SurfaceTextureHelper surfaceTextureHelper, int cameraId, Camera camera, Camera.CameraInfo info, CameraEnumerationAndroid.CaptureFormat captureFormat, long constructionTimeNs) {
+        Logging.d(TAG, "Create new camera1 session on camera " + cameraId);
+        this.cameraThreadHandler = new Handler();
+        this.events = events;
+        this.captureToTexture = captureToTexture;
+        this.applicationContext = applicationContext;
+        this.surfaceTextureHelper = surfaceTextureHelper;
+        this.cameraId = cameraId;
+        this.camera = camera;
+        this.info = info;
+        this.captureFormat = captureFormat;
+        this.constructionTimeNs = constructionTimeNs;
+        surfaceTextureHelper.setTextureSize(captureFormat.width, captureFormat.height);
+        this.startCapturing();
+    }
 
     static int getDeviceOrientation(Context context) {
         WindowManager wm = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
@@ -83,25 +101,6 @@ public class MyCamera1Session {
         transformMatrix.preRotate((float) rotation);
         transformMatrix.preTranslate(-0.5F, -0.5F);
         return buffer.applyTransformMatrix(transformMatrix, buffer.getWidth(), buffer.getHeight());
-    }
-
-    int dnake_orientation = 0;//组合 0 false
-    boolean danke_mirror = false;
-
-    private MyCamera1Session(Events events, boolean captureToTexture, Context applicationContext, SurfaceTextureHelper surfaceTextureHelper, int cameraId, Camera camera, Camera.CameraInfo info, CameraEnumerationAndroid.CaptureFormat captureFormat, long constructionTimeNs) {
-        Logging.d(TAG, "Create new camera1 session on camera " + cameraId);
-        this.cameraThreadHandler = new Handler();
-        this.events = events;
-        this.captureToTexture = captureToTexture;
-        this.applicationContext = applicationContext;
-        this.surfaceTextureHelper = surfaceTextureHelper;
-        this.cameraId = cameraId;
-        this.camera = camera;
-        this.info = info;
-        this.captureFormat = captureFormat;
-        this.constructionTimeNs = constructionTimeNs;
-        surfaceTextureHelper.setTextureSize(captureFormat.width, captureFormat.height);
-        this.startCapturing();
     }
 
     public static void create(CreateSessionCallback callback, Events events, boolean captureToTexture, Context applicationContext, SurfaceTextureHelper surfaceTextureHelper, int cameraId, int width, int height, int framerate) {
@@ -153,7 +152,7 @@ public class MyCamera1Session {
             }
 
             camera.setDisplayOrientation(0);
-            callback.onDone(new MyCamera1Session(events, captureToTexture, applicationContext, surfaceTextureHelper, cameraId, camera, info, captureFormat, constructionTimeNs));
+            callback.onDone(new MyCamera1Session_32006(events, captureToTexture, applicationContext, surfaceTextureHelper, cameraId, camera, info, captureFormat, constructionTimeNs));
         }
     }
 
@@ -178,16 +177,16 @@ public class MyCamera1Session {
     }
 
     private static CameraEnumerationAndroid.CaptureFormat findClosestCaptureFormat(Camera.Parameters parameters, int width, int height, int framerate) {
-        List<CameraEnumerationAndroid.CaptureFormat.FramerateRange> supportedFramerates = MyCameraEnumerator.convertFramerates(parameters.getSupportedPreviewFpsRange());
+        List<CameraEnumerationAndroid.CaptureFormat.FramerateRange> supportedFramerates = MyCamera1Enumerator_32006.convertFramerates(parameters.getSupportedPreviewFpsRange());
         Logging.d(TAG, "Available fps ranges: " + supportedFramerates);
         CameraEnumerationAndroid.CaptureFormat.FramerateRange fpsRange = CameraEnumerationAndroid.getClosestSupportedFramerateRange(supportedFramerates, framerate);
-        Size previewSize = CameraEnumerationAndroid.getClosestSupportedSize(MyCameraEnumerator.convertSizes(parameters.getSupportedPreviewSizes()), width, height);
+        Size previewSize = CameraEnumerationAndroid.getClosestSupportedSize(MyCamera1Enumerator_32006.convertSizes(parameters.getSupportedPreviewSizes()), width, height);
 //        reportCameraResolution(camera1ResolutionHistogram, previewSize);
         return new CameraEnumerationAndroid.CaptureFormat(previewSize.width, previewSize.height, fpsRange);
     }
 
     private static Size findClosestPictureSize(Camera.Parameters parameters, int width, int height) {
-        return CameraEnumerationAndroid.getClosestSupportedSize(MyCameraEnumerator.convertSizes(parameters.getSupportedPictureSizes()), width, height);
+        return CameraEnumerationAndroid.getClosestSupportedSize(MyCamera1Enumerator_32006.convertSizes(parameters.getSupportedPictureSizes()), width, height);
     }
 
    /* static void reportCameraResolution(Histogram histogram, Size resolution) {
@@ -245,9 +244,9 @@ public class MyCamera1Session {
                 Logging.e(TAG, errorMessage);
                 stopInternal();
                 if (error == 2) {
-                    events.onCameraDisconnected(MyCamera1Session.this);
+                    events.onCameraDisconnected(MyCamera1Session_32006.this);
                 } else {
-                    events.onCameraError(MyCamera1Session.this, errorMessage);
+                    events.onCameraError(MyCamera1Session_32006.this, errorMessage);
                 }
 
             }
@@ -315,7 +314,7 @@ public class MyCamera1Session {
                     });
                     Log.d(TAG, "PP====dnk onPreviewFrame: " + getFrameOrientation());
                     VideoFrame frame = new VideoFrame(frameBuffer, getFrameOrientation(), captureTimeNs);
-                    events.onFrameCaptured(MyCamera1Session.this, frame);
+                    events.onFrameCaptured(MyCamera1Session_32006.this, frame);
                     frame.release();
                 }
             }
@@ -335,26 +334,6 @@ public class MyCamera1Session {
             this.events.onCameraClosed(this);
             Logging.d(TAG, "Stop done");
         }
-    }
-
-    public enum FailureType {
-        ERROR,
-        DISCONNECTED;
-
-        FailureType() {
-        }
-    }
-
-    public interface Events {
-        void onCameraOpening();
-
-        void onCameraError(MyCamera1Session var1, String var2);
-
-        void onCameraDisconnected(MyCamera1Session var1);
-
-        void onCameraClosed(MyCamera1Session var1);
-
-        void onFrameCaptured(MyCamera1Session var1, VideoFrame var2);
     }
 
     private int getDefaultFrameOrientation() {
@@ -390,10 +369,12 @@ public class MyCamera1Session {
         }
     }
 
-    public interface CreateSessionCallback {
-        void onDone(MyCamera1Session var1);
+    public enum FailureType {
+        ERROR,
+        DISCONNECTED;
 
-        void onFailure(FailureType var1, String var2);
+        FailureType() {
+        }
     }
 
     private enum SessionState {
@@ -402,5 +383,23 @@ public class MyCamera1Session {
 
         SessionState() {
         }
+    }
+
+    public interface Events {
+        void onCameraOpening();
+
+        void onCameraError(MyCamera1Session_32006 var1, String var2);
+
+        void onCameraDisconnected(MyCamera1Session_32006 var1);
+
+        void onCameraClosed(MyCamera1Session_32006 var1);
+
+        void onFrameCaptured(MyCamera1Session_32006 var1, VideoFrame var2);
+    }
+
+    public interface CreateSessionCallback {
+        void onDone(MyCamera1Session_32006 var1);
+
+        void onFailure(FailureType var1, String var2);
     }
 }

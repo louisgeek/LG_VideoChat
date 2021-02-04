@@ -73,7 +73,7 @@ dependencies {
     }
 //        implementation 'org.webrtc:google-webrtc:1.0.+'
     //如果用旧版，不要修改版本号21770 新版不兼容
-    implementation 'org.webrtc:google-webrtc:1.0.30039'
+    implementation 'org.webrtc:google-webrtc:1.0.32006'
     implementation 'com.google.code.gson:gson:2.8.6'
     implementation 'org.greenrobot:eventbus:3.2.0'
 

@@ -1,4 +1,4 @@
-package com.louisgeek.chat.video.inner;
+package com.louisgeek.chat.video.inner30039;
 
 import android.content.Context;
 import android.os.Handler;
@@ -18,8 +18,8 @@ import java.util.Arrays;
 /**
  * Created by louisgeek on 2019/12/10.
  */
-public class MyCameraVideoCapturer implements CameraVideoCapturer {
-    private static final String TAG = "MyCameraVideoCapturer";
+public class MyCameraCapturer_30039 implements CameraVideoCapturer {
+    private static final String TAG = "MyCameraCapturer_30039";
     private static final int MAX_OPEN_CAMERA_ATTEMPTS = 3;
     private static final int OPEN_CAMERA_DELAY_MS = 500;
     private static final int OPEN_CAMERA_TIMEOUT = 10000;
@@ -38,7 +38,16 @@ public class MyCameraVideoCapturer implements CameraVideoCapturer {
     };
     private final Object stateLock = new Object();
     @Nullable
-    private final MyCamera1Session.Events cameraSessionEventsHandler = new MyCamera1Session.Events() {
+    private MyCamera1Session_30039 currentSession;
+    @Nullable
+    private Handler cameraThreadHandler;
+    private Context applicationContext;
+    private CapturerObserver capturerObserver;
+    @Nullable
+    private SurfaceTextureHelper surfaceHelper;
+    private boolean sessionOpening;
+    @Nullable
+    private final MyCamera1Session_30039.Events cameraSessionEventsHandler = new MyCamera1Session_30039.Events() {
         @Override
         public void onCameraOpening() {
             checkIsOnCameraThread();
@@ -52,7 +61,7 @@ public class MyCameraVideoCapturer implements CameraVideoCapturer {
         }
 
         @Override
-        public void onCameraError(MyCamera1Session session, String error) {
+        public void onCameraError(MyCamera1Session_30039 session, String error) {
             checkIsOnCameraThread();
             synchronized (stateLock) {
                 if (session != currentSession) {
@@ -65,7 +74,7 @@ public class MyCameraVideoCapturer implements CameraVideoCapturer {
         }
 
         @Override
-        public void onCameraDisconnected(MyCamera1Session session) {
+        public void onCameraDisconnected(MyCamera1Session_30039 session) {
             checkIsOnCameraThread();
             synchronized (stateLock) {
                 if (session != currentSession) {
@@ -78,7 +87,7 @@ public class MyCameraVideoCapturer implements CameraVideoCapturer {
         }
 
         @Override
-        public void onCameraClosed(MyCamera1Session session) {
+        public void onCameraClosed(MyCamera1Session_30039 session) {
             checkIsOnCameraThread();
             synchronized (stateLock) {
                 if (session != currentSession && currentSession != null) {
@@ -90,7 +99,7 @@ public class MyCameraVideoCapturer implements CameraVideoCapturer {
         }
 
         @Override
-        public void onFrameCaptured(MyCamera1Session session, VideoFrame frame) {
+        public void onFrameCaptured(MyCamera1Session_30039 session, VideoFrame frame) {
             checkIsOnCameraThread();
             synchronized (stateLock) {
                 if (session != currentSession) {
@@ -107,15 +116,6 @@ public class MyCameraVideoCapturer implements CameraVideoCapturer {
             }
         }
     };
-    @Nullable
-    private Handler cameraThreadHandler;
-    private Context applicationContext;
-    private CapturerObserver capturerObserver;
-    @Nullable
-    private SurfaceTextureHelper surfaceHelper;
-    private boolean sessionOpening;
-    @Nullable
-    private MyCamera1Session currentSession;
     private String cameraName;
     private int width;
     private int height;
@@ -128,9 +128,9 @@ public class MyCameraVideoCapturer implements CameraVideoCapturer {
     private CameraStatistics cameraStatistics;
     private boolean firstFrameObserved;
     @Nullable
-    private final MyCamera1Session.CreateSessionCallback createSessionCallback = new MyCamera1Session.CreateSessionCallback() {
+    private final MyCamera1Session_30039.CreateSessionCallback createSessionCallback = new MyCamera1Session_30039.CreateSessionCallback() {
         @Override
-        public void onDone(MyCamera1Session session) {
+        public void onDone(MyCamera1Session_30039 session) {
             checkIsOnCameraThread();
             Logging.d(TAG, "Create session done. Switch state: " + switchState);
             uiThreadHandler.removeCallbacks(openCameraTimeoutRunnable);
@@ -156,7 +156,7 @@ public class MyCameraVideoCapturer implements CameraVideoCapturer {
         }
 
         @Override
-        public void onFailure(MyCamera1Session.FailureType failureType, String error) {
+        public void onFailure(MyCamera1Session_30039.FailureType failureType, String error) {
             checkIsOnCameraThread();
             uiThreadHandler.removeCallbacks(openCameraTimeoutRunnable);
             synchronized (stateLock) {
@@ -175,7 +175,7 @@ public class MyCameraVideoCapturer implements CameraVideoCapturer {
                         switchState = SwitchState.IDLE;
                     }
 
-                    if (failureType == MyCamera1Session.FailureType.DISCONNECTED) {
+                    if (failureType == MyCamera1Session_30039.FailureType.DISCONNECTED) {
                         eventsHandler.onCameraDisconnected();
                     } else {
                         eventsHandler.onCameraError(error);
@@ -189,12 +189,7 @@ public class MyCameraVideoCapturer implements CameraVideoCapturer {
         }
     };
 
-    protected void createCameraSession(MyCamera1Session.CreateSessionCallback createSessionCallback, MyCamera1Session.Events events, Context applicationContext, SurfaceTextureHelper surfaceTextureHelper, String cameraName, int width, int height, int framerate) {
-        MyCamera1Session.create(createSessionCallback, events, this.captureToTexture, applicationContext, surfaceTextureHelper, MyCameraEnumerator.getCameraIndex(cameraName), width, height, framerate);
-    }
-
-
-    public MyCameraVideoCapturer(String cameraName, @Nullable CameraEventsHandler eventsHandler, MyCameraEnumerator cameraEnumerator) {
+    public MyCameraCapturer_30039(String cameraName, @Nullable CameraEventsHandler eventsHandler, MyCamera1Enumerator_30039 cameraEnumerator) {
         this.captureToTexture = cameraEnumerator.isCaptureToTexture();
         this.switchState = SwitchState.IDLE;
         if (eventsHandler == null) {
@@ -235,6 +230,10 @@ public class MyCameraVideoCapturer implements CameraVideoCapturer {
         } else if (!Arrays.asList(deviceNames).contains(this.cameraName)) {
             throw new IllegalArgumentException("Camera name " + this.cameraName + " does not match any known camera device.");
         }
+    }
+
+    protected void createCameraSession(MyCamera1Session_30039.CreateSessionCallback createSessionCallback, MyCamera1Session_30039.Events events, Context applicationContext, SurfaceTextureHelper surfaceTextureHelper, String cameraName, int width, int height, int framerate) {
+        MyCamera1Session_30039.create(createSessionCallback, events, this.captureToTexture, applicationContext, surfaceTextureHelper, MyCamera1Enumerator_30039.getCameraIndex(cameraName), width, height, framerate);
     }
 
     @Override
@@ -297,7 +296,7 @@ public class MyCameraVideoCapturer implements CameraVideoCapturer {
                 Logging.d(TAG, "Stop capture: Nulling session");
                 this.cameraStatistics.release();
                 this.cameraStatistics = null;
-                final MyCamera1Session oldSession = this.currentSession;
+                final MyCamera1Session_30039 oldSession = this.currentSession;
                 this.cameraThreadHandler.post(new Runnable() {
                     @Override
                     public void run() {
@@ -338,6 +337,11 @@ public class MyCameraVideoCapturer implements CameraVideoCapturer {
                 switchCameraInternal(switchEventsHandler);
             }
         });
+    }
+
+    @Override
+    public void switchCamera(CameraSwitchHandler cameraSwitchHandler, String s) {
+        // FIXME: 2021/2/4
     }
 
     @Override
@@ -405,7 +409,7 @@ public class MyCameraVideoCapturer implements CameraVideoCapturer {
                 Logging.d(TAG, "switchCamera: Stopping session");
                 this.cameraStatistics.release();
                 this.cameraStatistics = null;
-                final MyCamera1Session oldSession = this.currentSession;
+                final MyCamera1Session_30039 oldSession = this.currentSession;
                 this.cameraThreadHandler.post(new Runnable() {
                     @Override
                     public void run() {
