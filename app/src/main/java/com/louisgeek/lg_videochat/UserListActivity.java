@@ -164,7 +164,7 @@ public class UserListActivity extends AppCompatActivity {
                 chatModel.toUserModel = otherUserModel;
                 chatModel.isVideo = true;
                 //
-                ChatHelper.doInvite(mContext, chatModel, new ChatHelper.OnInviteBack() {
+                ChatHelper.doInvite(mContext, chatModel, new ChatHelper.DoInviteBack() {
                     @Override
                     public void onInvite(ChatModel chatModel) {
                         //type 1
@@ -177,6 +177,7 @@ public class UserListActivity extends AppCompatActivity {
                     public void onSelfOffline() {
 
                     }
+
                 });
             }
 
@@ -263,10 +264,6 @@ public class UserListActivity extends AppCompatActivity {
 //                ChatActivity.actionStart(mContext, chatInfoModelJson);
             }
 
-            @Override
-            public void onSelfOffline() {
-
-            }
         });
 
     }

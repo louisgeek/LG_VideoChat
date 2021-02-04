@@ -15,7 +15,7 @@ public class ChatHelper {
     private static final String TAG = "ChatHelper";
     private static final Gson mGson = new Gson();
 
-    public static void doInvite(Context context, ChatModel chatModel, OnInviteBack onInviteBack) {
+    public static void doInvite(Context context, ChatModel chatModel, DoInviteBack doInviteBack) {
         //对讲生命周期开始
         ChatUtil.userModel = chatModel.fromUserModel;
         ChatUtil.otherUserModel = chatModel.toUserModel;
@@ -37,16 +37,16 @@ public class ChatHelper {
 //                        showChatDialog(chatInfoModelJson);
                 //type 2
 //                ChatActivity.actionStart(mContext, chatInfoModelJson);
-                if (onInviteBack != null) {
-                    onInviteBack.onInvite(chatModel);
+                if (doInviteBack != null) {
+                    doInviteBack.onInvite(chatModel);
                 }
             }
 
             @Override
             public void selfOffline() {
 //                Toast.makeText(context, "设备当前不在线", Toast.LENGTH_SHORT).show();
-                if (onInviteBack != null) {
-                    onInviteBack.onSelfOffline();
+                if (doInviteBack != null) {
+                    doInviteBack.onSelfOffline();
                 }
             }
 
@@ -71,9 +71,14 @@ public class ChatHelper {
         }
     }
 
-    public interface OnInviteBack {
+    public interface DoInviteBack {
         void onInvite(ChatModel chatModel);
 
         void onSelfOffline();
+    }
+
+    public interface OnInviteBack {
+        void onInvite(ChatModel chatModel);
+
     }
 }
