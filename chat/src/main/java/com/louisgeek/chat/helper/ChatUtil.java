@@ -154,7 +154,7 @@ public class ChatUtil {
             Log.e(TAG, "socket is null");
             return;
         }
-        if (socket.connected()) {
+        if (!socket.connected()) {
             Log.e(TAG, "socket is not connected");
             return;
         }

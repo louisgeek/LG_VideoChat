@@ -166,7 +166,7 @@ public class UserListActivity extends AppCompatActivity {
                 //
                 ChatHelper.doInvite(mContext, chatModel, new ChatHelper.DoInviteBack() {
                     @Override
-                    public void onInvite(ChatModel chatModel) {
+                    public void doInvite(ChatModel chatModel) {
                         //type 1
                         showChatDialog(chatModel);
                         //type 2
@@ -174,7 +174,7 @@ public class UserListActivity extends AppCompatActivity {
                     }
 
                     @Override
-                    public void onSelfOffline() {
+                    public void selfOffline() {
 
                     }
 

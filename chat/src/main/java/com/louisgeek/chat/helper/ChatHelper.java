@@ -38,7 +38,7 @@ public class ChatHelper {
                 //type 2
 //                ChatActivity.actionStart(mContext, chatInfoModelJson);
                 if (doInviteBack != null) {
-                    doInviteBack.onInvite(chatModel);
+                    doInviteBack.doInvite(chatModel);
                 }
             }
 
@@ -46,7 +46,7 @@ public class ChatHelper {
             public void selfOffline() {
 //                Toast.makeText(context, "设备当前不在线", Toast.LENGTH_SHORT).show();
                 if (doInviteBack != null) {
-                    doInviteBack.onSelfOffline();
+                    doInviteBack.selfOffline();
                 }
             }
 
@@ -72,9 +72,9 @@ public class ChatHelper {
     }
 
     public interface DoInviteBack {
-        void onInvite(ChatModel chatModel);
+        void doInvite(ChatModel chatModel);
 
-        void onSelfOffline();
+        void selfOffline();
     }
 
     public interface OnInviteBack {
