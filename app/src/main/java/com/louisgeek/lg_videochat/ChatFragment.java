@@ -10,6 +10,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -20,8 +21,11 @@ import com.louisgeek.chat.helper.ChatUtil;
 import com.louisgeek.chat.listener.OnChatListener;
 import com.louisgeek.chat.model.ChatModel;
 import com.louisgeek.chat.model.SdpTypeChatModel;
+import com.louisgeek.chat.video.CameraVideoCapturerHelper;
+import com.louisgeek.chat.video.VideoConstants;
 
 import org.webrtc.SurfaceViewRenderer;
+import org.webrtc.VideoCapturer;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -261,7 +265,22 @@ public class ChatFragment extends BaseChatFragment {
         return id_svr_remote;
     }
 
+    @Override
+    protected VideoCapturer setupLocalVideoCapturer() {
+        //普通摄像头
+        VideoCapturer localVideoCapturer = CameraVideoCapturerHelper.getFrontFacingCameraVideoCapturer(mContext);
+        if (localVideoCapturer != null) {
+            //前置一般 true
+            VideoConstants.localVideoMirror = true;
+        } else {
+            //没有前置 后置
+            localVideoCapturer = CameraVideoCapturerHelper.getBackFacingCameraVideoCapturer(mContext);
+            VideoConstants.localVideoMirror = false;
+        }
+        return localVideoCapturer;
+    }
 
+   
     @Override
     public boolean onKeyBackPressed() {
         if ("取消".equals(id_btn_cancel_end.getText().toString())) {
@@ -466,6 +485,18 @@ public class ChatFragment extends BaseChatFragment {
             onChatListener.onSwitchAudioVideo(isVideo);
         }
 
+    }
+
+    @Override
+    protected void onCameraSwitch(int code, String msg) {
+        super.onCameraSwitch(code, msg);
+        if (code == -1) {
+            Toast.makeText(mContext, "摄像头切换失败" + msg, Toast.LENGTH_SHORT).show();
+        } else if (code == 0) {
+            Log.e(TAG, "onCameraSwitch:切换到后置摄像头");
+        } else if (code == 1) {
+            Log.e(TAG, "onCameraSwitch:切换到前置摄像头");
+        }
     }
 
     @Override

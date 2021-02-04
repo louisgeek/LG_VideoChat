@@ -8,7 +8,6 @@ import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -85,7 +84,7 @@ public abstract class BaseChatFragment extends Fragment {
     //
     private SurfaceViewRenderer mLocalSurfaceViewRenderer;
     private SurfaceViewRenderer mRemoteSurfaceViewRenderer;
-    private String mCameraStatus;
+    //    private String mCameraStatus;
     //1
     private MediaConstraints mSdpMediaConstraints;
     private MediaConstraints mAudioConstraints;
@@ -117,18 +116,29 @@ public abstract class BaseChatFragment extends Fragment {
 
     protected abstract SurfaceViewRenderer setupRemoteSurfaceViewRenderer();
 
+    protected abstract VideoCapturer setupLocalVideoCapturer();
+
+
     public abstract boolean onKeyBackPressed();
+
+    protected void onCameraSwitch(int code, String msg) {
+
+    }
 
     @Override
     public void onResume() {
         super.onResume();
-        baseSwitchAudioVideo(setupChatModel().isVideo);
+        if (setupChatModel().isVideo) {
+            CameraVideoCapturerHelper.startCameraVideoCapturer(mLocalVideoCapturer);
+        }
     }
 
     @Override
     public void onPause() {
         super.onPause();
-        baseSwitchAudioVideo(setupChatModel().isVideo);
+        if (setupChatModel().isVideo) {
+            CameraVideoCapturerHelper.stopCameraVideoCapturer(mLocalVideoCapturer);
+        }
     }
 
     @Override
@@ -176,8 +186,6 @@ public abstract class BaseChatFragment extends Fragment {
         mRemoteSurfaceViewRenderer = setupRemoteSurfaceViewRenderer();
         //
         mLocalSurfaceViewRenderer.init(this.mEglBase.getEglBaseContext(), null);
-        //后置摄像头一般设置成 false
-        mLocalSurfaceViewRenderer.setMirror(!CameraStatus_BACK.equals(mCameraStatus));
         //视频画面缩放模式
 //       自动适应屏幕比例， 画面存在被裁剪的可能
 //        remoteSurfaceViewRenderer.setScalingType(RendererCommon.ScalingType.SCALE_ASPECT_FILL);
@@ -411,9 +419,11 @@ public abstract class BaseChatFragment extends Fragment {
         }else*/
         {
             //普通摄像头
-            mLocalVideoCapturer = CameraVideoCapturerHelper.getFrontFacingCameraVideoCapturer(mContext);
-            mLocalVideoCapturer = null;// FIXME: 2021/2/1
-            if (mLocalVideoCapturer != null) {
+//            mLocalVideoCapturer = CameraVideoCapturerHelper.getFrontFacingCameraVideoCapturer(mContext);
+            mLocalVideoCapturer = setupLocalVideoCapturer();
+            //后置摄像头一般设置成 false
+            mLocalSurfaceViewRenderer.setMirror(VideoConstants.localVideoMirror);
+           /* if (mLocalVideoCapturer != null) {
                 mCameraStatus = CameraStatus_FRONT;
             } else {
                 //没有前置
@@ -421,10 +431,10 @@ public abstract class BaseChatFragment extends Fragment {
                 if (mLocalVideoCapturer != null) {
                     mCameraStatus = CameraStatus_BACK;
                 }
-            }
+            }*/
             //
         }
-        baseOnCameraStatusChange(mCameraStatus);
+//        baseOnCameraStatusChange(mCameraStatus);
         if (mLocalVideoCapturer != null) {
             mLocalVideoCapturer.initialize(mSurfaceTextureHelper, mContext.getApplicationContext(), mCapturerObserver);
         }
@@ -546,6 +556,11 @@ public abstract class BaseChatFragment extends Fragment {
             mRemoteSurfaceViewRenderer = null;
         }
         //
+        if (mSurfaceTextureHelper != null) {
+            mSurfaceTextureHelper.dispose();
+            mSurfaceTextureHelper = null;
+        }
+
         if (mLocalVideoCapturer != null) {
             try {
                 mLocalVideoCapturer.stopCapture();
@@ -555,10 +570,7 @@ public abstract class BaseChatFragment extends Fragment {
             mLocalVideoCapturer.dispose();
             mLocalVideoCapturer = null;
         }
-        if (mSurfaceTextureHelper != null) {
-            mSurfaceTextureHelper.dispose();
-            mSurfaceTextureHelper = null;
-        }
+
         if (mPeerConnectionFactory != null) {
             mPeerConnectionFactory.dispose();
             mPeerConnectionFactory = null;
@@ -608,6 +620,7 @@ public abstract class BaseChatFragment extends Fragment {
 
 
     protected void baseSwitchAudioVideo(boolean isVideo) {
+        Log.e(TAG, "baseSwitchAudioVideo: " + isVideo);
         if (isVideo) {
             CameraVideoCapturerHelper.startCameraVideoCapturer(mLocalVideoCapturer);
 //            mLocalSurfaceViewRenderer.setVisibility(View.VISIBLE);
@@ -630,22 +643,23 @@ public abstract class BaseChatFragment extends Fragment {
                             //
                             if (isFrontFacing) {
                                 //切换到前置
-                                mCameraStatus = CameraStatus_FRONT;
+                                onCameraSwitch(1, "切换到前置摄像头成功");
                             } else {
                                 //切换到后置
-                                mCameraStatus = CameraStatus_BACK;
+                                onCameraSwitch(0, "切换到后置摄像头成功");
                             }
 
                         }
 
                         @Override
                         public void onCameraSwitchError(String error) {
+                            onCameraSwitch(-1, error);
                             //切换失败 一般停留在原来界面
-                            Toast.makeText(mContext, "摄像头切换失败：" + error, Toast.LENGTH_SHORT).show();
+//                            Toast.makeText(mContext, "摄像头切换失败：" + error, Toast.LENGTH_SHORT).show();
                         }
                     });
             //
-            baseOnCameraStatusChange(mCameraStatus);
+//            baseOnCameraStatusChange(mCameraStatus);
         }
     }
 

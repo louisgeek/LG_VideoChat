@@ -203,7 +203,8 @@ public class UserListActivity extends AppCompatActivity {
 //        SocketManager.getInstance().init(CommonConstant.getBaseUrlSocket(), query);
 //        SocketService.actionStart(this, "http://192.168.12.222:3004", query);
 //        SocketIOService.actionStart(this, "http://192.168.1.14:3004", query);
-        SocketIOService.actionStart(mContext, "http://192.168.12.222:3003", query);
+//        SocketIOService.actionStart(mContext, "http://192.168.12.222:3003", query);
+        SocketIOService.actionStart(mContext, "http://192.168.1.12:3003", query);
     }
 
     private void initData() {

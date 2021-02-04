@@ -62,6 +62,7 @@ public class VideoConstants {
     public static boolean videoCodecHwAcceleration = true;
     public static boolean enableIntelVp8Encoder = true;
     public static boolean enableAudio = true;
+    public static boolean localVideoMirror = false;
 
     public static String getVideoCodecName() {
         switch (videoCodec) {
