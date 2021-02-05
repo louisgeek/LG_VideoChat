@@ -25,11 +25,11 @@ public class ChatUtil {
     public static UserModel userModel;
     public static UserModel otherUserModel;
 
-    public static void online(UserModel otherUserModel, OnlineBack onlineBack) {
+    public static void check_online(UserModel otherUserModel, CheckOnlineBack checkOnlineBack) {
         String userModelJson = mGson.toJson(otherUserModel);
         Socket socket = SocketIOManager.getInstance().socket();
         if (socket != null && socket.connected()) {
-            socket.emit(ChatEvents.online, userModelJson, new Ack() {
+            socket.emit(ChatEvents.check_online, userModelJson, new Ack() {
                 @Override
                 public void call(Object... args) {
                     String userId = (String) args[0];
@@ -39,8 +39,8 @@ public class ChatUtil {
                     new Handler(Looper.getMainLooper()).post(new Runnable() {
                         @Override
                         public void run() {
-                            if (onlineBack != null) {
-                                onlineBack.checkOnline("1".equals(online));
+                            if (checkOnlineBack != null) {
+                                checkOnlineBack.online("1".equals(online));
                             }
                         }
                     });
@@ -48,11 +48,24 @@ public class ChatUtil {
                 }
             });
         } else {
-            if (onlineBack != null) {
-                onlineBack.selfOffline();
+            if (checkOnlineBack != null) {
+                checkOnlineBack.selfOffline();
             }
         }
 
+    }
+
+    public static void room_online(RoomOnlineBack roomOnlineBack) {
+        //
+        emit(ChatEvents.room_online, new Ack() {
+            @Override
+            public void call(Object... args) {
+                String json = (String) args[0];
+                if (roomOnlineBack != null) {
+                    roomOnlineBack.online(json);
+                }
+            }
+        });
     }
 
     /**
@@ -161,17 +174,39 @@ public class ChatUtil {
         socket.emit(event, json);
     }
 
+    private static void emit(String event, Ack ack) {
+        Socket socket = SocketIOManager.getInstance().socket();
+        if (socket == null) {
+            Log.e(TAG, "socket is null");
+            return;
+        }
+        if (!socket.connected()) {
+            Log.e(TAG, "socket is not connected");
+            return;
+        }
+        socket.emit(event, ack);
+    }
+
     private static void emit(String event, String json, Ack ack) {
         Socket socket = SocketIOManager.getInstance().socket();
         if (socket == null) {
             Log.e(TAG, "socket is null");
             return;
         }
+        if (!socket.connected()) {
+            Log.e(TAG, "socket is not connected");
+            return;
+        }
         socket.emit(event, json, ack);
     }
 
-    public interface OnlineBack {
-        void checkOnline(boolean online);
+
+    public interface RoomOnlineBack {
+        void online(String json);
+    }
+
+    public interface CheckOnlineBack {
+        void online(boolean online);
 
         void selfOffline();
     }

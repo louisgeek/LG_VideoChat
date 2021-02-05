@@ -280,7 +280,7 @@ public class ChatFragment extends BaseChatFragment {
         return localVideoCapturer;
     }
 
-   
+
     @Override
     public boolean onKeyBackPressed() {
         if ("取消".equals(id_btn_cancel_end.getText().toString())) {

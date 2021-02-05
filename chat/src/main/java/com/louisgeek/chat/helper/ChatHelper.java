@@ -20,9 +20,9 @@ public class ChatHelper {
         ChatUtil.userModel = chatModel.fromUserModel;
         ChatUtil.otherUserModel = chatModel.toUserModel;
         //
-        ChatUtil.online(ChatUtil.otherUserModel, new ChatUtil.OnlineBack() {
+        ChatUtil.check_online(ChatUtil.otherUserModel, new ChatUtil.CheckOnlineBack() {
             @Override
-            public void checkOnline(boolean online) {
+            public void online(boolean online) {
                 if (!online) {
                     Toast.makeText(context, ChatUtil.otherUserModel.userName + "不在线", Toast.LENGTH_SHORT).show();
                    /* if (onInviteBack != null) {

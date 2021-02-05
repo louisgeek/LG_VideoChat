@@ -7,7 +7,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class ChatEvents {
-    public static final String online = "online";
+    public static final String check_online = "check_online";
+    public static final String room_online = "room_online";
     //
     public static final String invite = "invite";
     public static final String cancel = "cancel";
@@ -29,7 +30,7 @@ public class ChatEvents {
     public static Map<String, EventEmitterListener> eventMap = new HashMap<>();
 
     static {
-        eventMap.put(online, new EventEmitterListener(online));
+        eventMap.put(check_online, new EventEmitterListener(check_online));
         //
         eventMap.put(invite, new EventEmitterListener(invite));
         eventMap.put(cancel, new EventEmitterListener(cancel));
