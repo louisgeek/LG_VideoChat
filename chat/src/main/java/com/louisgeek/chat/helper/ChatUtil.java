@@ -13,6 +13,8 @@ import com.louisgeek.chat.model.UserModel;
 import com.louisgeek.chat.socketio.ChatEvents;
 import com.louisgeek.chat.socketio.SocketIOManager;
 
+import org.json.JSONObject;
+
 import io.socket.client.Ack;
 import io.socket.client.Socket;
 
@@ -60,7 +62,16 @@ public class ChatUtil {
         emit(ChatEvents.room_online, new Ack() {
             @Override
             public void call(Object... args) {
-                String json = (String) args[0];
+                String json = "";
+                Object object = args[0];
+                if (object instanceof JSONObject) {
+                    JSONObject jsonObject = (JSONObject) args[0];
+                    json = jsonObject.toString();
+                } else if (object instanceof String) {
+                    json = (String) args[0];
+                } else {
+                    Log.e(TAG, "call: zfq error  ");
+                }
                 if (roomOnlineBack != null) {
                     roomOnlineBack.online(json);
                 }
