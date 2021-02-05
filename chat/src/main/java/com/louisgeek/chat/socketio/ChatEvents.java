@@ -31,6 +31,7 @@ public class ChatEvents {
 
     static {
         eventMap.put(check_online, new EventEmitterListener(check_online));
+        eventMap.put(room_online, new EventEmitterListener(room_online));
         //
         eventMap.put(invite, new EventEmitterListener(invite));
         eventMap.put(cancel, new EventEmitterListener(cancel));
